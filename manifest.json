@@ -1,0 +1,10 @@
+{
+  "id": "j-chat",
+  "name": "J Chat",
+  "version": "0.1.0",
+  "minAppVersion": "1.6.0",
+  "description": "Vault-aware AI chat side panel for Obsidian.",
+  "author": "Jared Moore",
+  "isDesktopOnly": true
+}
+

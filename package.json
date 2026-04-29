@@ -1,0 +1,52 @@
+{
+  "name": "obsidian-j-chat",
+  "version": "0.1.0",
+  "description": "Vault-aware AI chat side panel for Obsidian.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "dev:js": "node esbuild.config.mjs",
+    "dev:css": "tailwindcss -i src/ui/tailwind.css -o styles.css --watch",
+    "dev": "concurrently -n js,css \"npm:dev:js\" \"npm:dev:css\"",
+    "build:css": "tailwindcss -i src/ui/tailwind.css -o styles.css --minify",
+    "build": "npm run build:css && tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "ai",
+    "chat"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@openai/codex-sdk": "^0.125.0",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.8.0",
+    "obsidian": "latest",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.25.9",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.19",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
