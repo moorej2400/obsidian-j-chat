@@ -14,6 +14,7 @@ const context = await esbuild.context({
   logLevel: "info",
   minify: production,
   outfile: "main.js",
+  platform: "node",
   sourcemap: production ? false : "inline",
   target: "es2022",
   treeShaking: true
@@ -25,4 +26,3 @@ if (production) {
 } else {
   await context.watch();
 }
-

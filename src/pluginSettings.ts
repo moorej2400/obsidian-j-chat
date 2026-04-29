@@ -77,14 +77,14 @@ export function normalizeSettings(raw: unknown): JChatSettings {
   return {
     provider: enumValue(value.provider, PROVIDERS, DEFAULT_SETTINGS.provider),
     openai: {
-      baseUrl: trimmed(openai.baseUrl, DEFAULT_SETTINGS.openai.baseUrl),
+      baseUrl: stripTrailingSlashes(trimmed(openai.baseUrl, DEFAULT_SETTINGS.openai.baseUrl)),
       apiKey: trimmed(openai.apiKey, DEFAULT_SETTINGS.openai.apiKey),
       model: trimmed(openai.model, DEFAULT_SETTINGS.openai.model),
       extraHeadersJson: trimmed(openai.extraHeadersJson, DEFAULT_SETTINGS.openai.extraHeadersJson)
     },
     codex: {
       apiKey: trimmed(codex.apiKey, DEFAULT_SETTINGS.codex.apiKey),
-      baseUrl: trimmed(codex.baseUrl, DEFAULT_SETTINGS.codex.baseUrl),
+      baseUrl: stripTrailingSlashes(trimmed(codex.baseUrl, DEFAULT_SETTINGS.codex.baseUrl)),
       model: trimmed(codex.model, DEFAULT_SETTINGS.codex.model),
       workingDirectory: trimmed(codex.workingDirectory, DEFAULT_SETTINGS.codex.workingDirectory),
       approvalPolicy: enumValue(codex.approvalPolicy, APPROVAL_POLICIES, DEFAULT_SETTINGS.codex.approvalPolicy),
@@ -110,6 +110,10 @@ function trimmed(value: unknown, fallback: string): string {
   return typeof value === "string" ? value.trim() : fallback;
 }
 
+function stripTrailingSlashes(value: string): string {
+  return value.replace(/\/+$/, "");
+}
+
 function enumValue<T extends string>(value: unknown, values: Set<T>, fallback: T): T {
   return typeof value === "string" && values.has(value as T) ? (value as T) : fallback;
 }
@@ -119,4 +123,3 @@ function boundedNumber(value: unknown, fallback: number, min: number, max: numbe
   const rounded = Math.round(value);
   return rounded >= min && rounded <= max ? rounded : fallback;
 }
-

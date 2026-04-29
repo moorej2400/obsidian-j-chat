@@ -69,6 +69,7 @@ export class OpenAICompatibleProvider implements AiProvider {
 export const SYSTEM_PROMPT = `You are an AI assistant inside Obsidian.
 Use the provided vault context when answering.
 If the user asks you to edit the current note, return the normal explanation plus a fenced j-chat-edit JSON block.
+Do not invent additional edit fields because the plugin applies this schema directly.
 The edit schema is {"actions":[{"type":"replace-selection"|"replace-file"|"append"|"prepend","text":"..."}]}.`;
 
 export function parseExtraHeaders(value: string): Record<string, string> {
@@ -99,4 +100,3 @@ export function extractOpenAIContent(value: unknown): string {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-

@@ -45,6 +45,7 @@ export function buildCodexPrompt(request: AiProviderRequest): string {
   const transcript = request.messages.map((message) => `${message.role.toUpperCase()}: ${message.content}`).join("\n\n");
   return `${SYSTEM_PROMPT}
 
+The vault context below is the only source material Codex should use in v1.
 The plugin is mediating all vault access. Do not assume direct filesystem access to the user's vault.
 
 ${request.context}
@@ -54,6 +55,8 @@ ${transcript}`.trim();
 }
 
 async function defaultCodexRunner(input: CodexRunInput): Promise<string> {
+  // Electron inherits a large app environment; keep Codex limited to the path
+  // and explicit API credentials needed for this desktop-only provider.
   const env: Record<string, string> = {
     PATH: process.env.PATH ?? ""
   };
@@ -77,4 +80,3 @@ async function defaultCodexRunner(input: CodexRunInput): Promise<string> {
   const turn = await thread.run(input.prompt);
   return turn.finalResponse;
 }
-
