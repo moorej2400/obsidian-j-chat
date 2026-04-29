@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5% 64.9%;
+    --radius: 0.5rem;
+  }
+
+  .theme-dark,
+  [data-theme="dark"] {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  .j-chat-root {
+    @apply bg-background text-foreground;
+    color-scheme: light dark;
+  }
+
+  .j-chat-root *,
+  .j-chat-root *::before,
+  .j-chat-root *::after {
+    border-color: hsl(var(--border));
+  }
+}
+
+@layer components {
+  .j-chat-prose {
+    @apply text-sm leading-relaxed text-foreground;
+  }
+
+  .j-chat-prose p {
+    @apply my-2 first:mt-0 last:mb-0;
+  }
+
+  .j-chat-prose strong {
+    @apply font-semibold;
+  }
+
+  .j-chat-prose em {
+    @apply italic;
+  }
+
+  .j-chat-prose a {
+    @apply text-primary underline underline-offset-2 hover:opacity-80;
+  }
+
+  .j-chat-prose ul {
+    @apply my-2 ml-4 list-disc space-y-1;
+  }
+
+  .j-chat-prose ol {
+    @apply my-2 ml-4 list-decimal space-y-1;
+  }
+
+  .j-chat-prose li > p {
+    @apply my-0;
+  }
+
+  .j-chat-prose h1 {
+    @apply mt-3 mb-1 text-base font-semibold;
+  }
+
+  .j-chat-prose h2 {
+    @apply mt-3 mb-1 text-sm font-semibold;
+  }
+
+  .j-chat-prose h3,
+  .j-chat-prose h4,
+  .j-chat-prose h5,
+  .j-chat-prose h6 {
+    @apply mt-2 mb-1 text-sm font-semibold;
+  }
+
+  .j-chat-prose blockquote {
+    @apply my-2 border-l-2 border-border pl-3 text-muted-foreground;
+  }
+
+  .j-chat-prose hr {
+    @apply my-3 border-border;
+  }
+
+  .j-chat-prose code {
+    @apply rounded bg-muted px-1 py-0.5 font-mono text-[0.8125rem];
+  }
+
+  .j-chat-prose pre {
+    @apply my-2 overflow-x-auto rounded-md border bg-muted p-3 font-mono text-xs leading-relaxed;
+  }
+
+  .j-chat-prose pre code {
+    @apply bg-transparent p-0 text-xs;
+  }
+
+  .j-chat-prose table {
+    @apply my-2 w-full border-collapse text-xs;
+  }
+
+  .j-chat-prose th,
+  .j-chat-prose td {
+    @apply border border-border px-2 py-1 text-left align-top;
+  }
+
+  .j-chat-prose th {
+    @apply bg-muted font-semibold;
+  }
+}

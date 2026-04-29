@@ -5,10 +5,13 @@ describe("CodexSdkProvider", () => {
   it("builds a plugin-mediated prompt without granting vault filesystem access", async () => {
     const runCodex = vi.fn(async () => "answer");
     const provider = new CodexSdkProvider({
+      apiKey: "",
+      baseUrl: "",
       model: "gpt-5.1-codex",
       workingDirectory: "/tmp/non-vault",
       approvalPolicy: "never",
-      sandboxMode: "read-only"
+      sandboxMode: "read-only",
+      modelReasoningEffort: "medium"
     }, runCodex);
 
     const response = await provider.sendMessage({
@@ -23,4 +26,3 @@ describe("CodexSdkProvider", () => {
     }));
   });
 });
-
