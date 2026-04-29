@@ -10,7 +10,9 @@
     "dev": "concurrently -n js,css \"npm:dev:js\" \"npm:dev:css\"",
     "build:css": "tailwindcss -i src/ui/tailwind.css -o styles.css --minify",
     "build": "npm run build:css && tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
-    "test": "vitest run tests"
+    "test": "vitest run tests",
+    "e2e:bundle": "npm run build:css && node tests/e2e/build-harness.mjs",
+    "test:e2e": "npm run e2e:bundle && playwright test"
   },
   "keywords": [
     "obsidian",
@@ -48,6 +50,7 @@
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.19",
     "tslib": "^2.8.1",
+    "@playwright/test": "^1.56.1",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   }
