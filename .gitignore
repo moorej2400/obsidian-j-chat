@@ -5,6 +5,9 @@ styles.css
 dist/
 build/
 coverage/
+test-results/
+playwright-report/
+tests/e2e/.dist/
 .vite/
 .vitest/
 .obsidian/
@@ -17,4 +20,3 @@ coverage/
 data.json
 *.log
 .DS_Store
-
