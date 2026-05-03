@@ -1,7 +1,31 @@
-import { Codex, type ApprovalMode, type ModelReasoningEffort, type SandboxMode } from "@openai/codex-sdk";
 import type { CodexSdkSettings } from "../pluginSettings";
 import { SYSTEM_PROMPT } from "./openAICompatibleProvider";
 import type { AiProvider, AiProviderRequest, AiProviderResponse } from "./types";
+
+type ApprovalMode = CodexSdkSettings["approvalPolicy"];
+type SandboxMode = CodexSdkSettings["sandboxMode"];
+type ModelReasoningEffort = CodexSdkSettings["modelReasoningEffort"];
+
+type CodexSdkModule = {
+  Codex: new (options?: {
+    apiKey?: string;
+    baseUrl?: string;
+    env?: Record<string, string>;
+  }) => {
+    startThread(options?: {
+      model?: string;
+      workingDirectory?: string;
+      skipGitRepoCheck?: boolean;
+      approvalPolicy?: ApprovalMode;
+      sandboxMode?: SandboxMode;
+      modelReasoningEffort?: ModelReasoningEffort;
+      networkAccessEnabled?: boolean;
+      webSearchMode?: "disabled" | "cached" | "live";
+    }): {
+      run(prompt: string): Promise<{ finalResponse: string }>;
+    };
+  };
+};
 
 export type CodexRunInput = {
   prompt: string;
@@ -55,6 +79,7 @@ ${transcript}`.trim();
 }
 
 async function defaultCodexRunner(input: CodexRunInput): Promise<string> {
+  const { Codex } = await loadCodexSdk();
   // Electron inherits a large app environment; keep Codex limited to the path
   // and explicit API credentials needed for this desktop-only provider.
   const env: Record<string, string> = {
@@ -79,4 +104,16 @@ async function defaultCodexRunner(input: CodexRunInput): Promise<string> {
   });
   const turn = await thread.run(input.prompt);
   return turn.finalResponse;
+}
+
+async function loadCodexSdk(): Promise<CodexSdkModule> {
+  try {
+    // Load only when Codex mode is used; bundling the SDK breaks Obsidian load
+    // because the SDK depends on import.meta.url for locating Codex binaries.
+    const runtimeRequire = Function("return require")() as (id: string) => CodexSdkModule;
+    return runtimeRequire("@openai/codex-sdk");
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Codex SDK provider is not available in this Obsidian runtime: ${detail}`);
+  }
 }
