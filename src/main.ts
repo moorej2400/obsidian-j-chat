@@ -1,4 +1,4 @@
-import { Notice, Plugin, type WorkspaceLeaf } from "obsidian";
+import { Plugin, type WorkspaceLeaf } from "obsidian";
 import { ChatController } from "./chat/chatController";
 import { JChatSettingTab } from "./settingsTab";
 import { J_CHAT_VIEW_TYPE, JChatView } from "./jChatView";
@@ -33,6 +33,10 @@ export default class JChatPlugin extends Plugin {
     });
 
     this.addSettingTab(new JChatSettingTab(this.app, this));
+
+    this.app.workspace.onLayoutReady(() => {
+      void this.activateView();
+    });
   }
 
   onunload(): void {
@@ -52,24 +56,17 @@ export default class JChatPlugin extends Plugin {
   }
 
   private async activateView(): Promise<void> {
-    const existing = this.app.workspace.getLeavesOfType(J_CHAT_VIEW_TYPE)[0];
-    if (existing) {
-      this.app.workspace.revealLeaf(existing);
-      return;
-    }
+    const leaf = await this.app.workspace.ensureSideLeaf(J_CHAT_VIEW_TYPE, "right", {
+      active: true,
+      reveal: true
+    });
 
-    const leaf = this.getOrCreateRightLeaf();
-    await leaf.setViewState({ type: J_CHAT_VIEW_TYPE, active: true });
-    this.app.workspace.revealLeaf(leaf);
+    await this.revealAndActivate(leaf);
   }
 
-  private getOrCreateRightLeaf(): WorkspaceLeaf {
-    const leaf = this.app.workspace.getRightLeaf(false);
-    if (!leaf) {
-      new Notice("Could not open the J Chat side panel.");
-      throw new Error("Obsidian did not provide a right leaf for J Chat.");
-    }
-    return leaf;
+  private async revealAndActivate(leaf: WorkspaceLeaf): Promise<void> {
+    await this.app.workspace.revealLeaf(leaf);
+    this.app.workspace.setActiveLeaf(leaf, { focus: false });
   }
 
   private requireController(): ChatController {
@@ -77,4 +74,3 @@ export default class JChatPlugin extends Plugin {
     return this.controller;
   }
 }
-
