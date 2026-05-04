@@ -1,5 +1,15 @@
 import * as React from "react";
-import { Eye, EyeOff, FolderCog, Settings2, SlidersHorizontal, Sparkles } from "lucide-react";
+import {
+  Database,
+  Eye,
+  EyeOff,
+  FileCode2,
+  FolderCog,
+  KeyRound,
+  Settings2,
+  SlidersHorizontal,
+  Sparkles
+} from "lucide-react";
 import type {
   CodexSdkSettings,
   ContextSettings,
@@ -9,12 +19,14 @@ import type {
   ProviderMode
 } from "@/pluginSettings";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -42,28 +54,58 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
     onChange({ ...settings, editing: { ...settings.editing, ...next } });
 
   return (
-    <div className="j-chat-root w-full max-w-3xl bg-background p-1 text-foreground">
-      <Tabs defaultValue="provider" className="w-full">
-        <TabsList className="w-full justify-start">
+    <div className="j-chat-root j-chat-settings-shell w-full max-w-4xl bg-background p-1 text-foreground">
+      <header className="j-chat-settings-hero">
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span className="j-chat-mark" aria-hidden>
+              <Sparkles className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <h2 className="truncate text-xl font-semibold tracking-normal">J Chat settings</h2>
+              <p className="max-w-[66ch] text-xs leading-relaxed text-muted-foreground">
+                Configure model access, context retrieval, and note editing behavior. Secrets stay in Obsidian plugin data.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            <Badge variant="outline">
+              <KeyRound className="h-3 w-3" aria-hidden />
+              {settings.provider === "codex-sdk" ? "Codex SDK" : "OpenAI-compatible"}
+            </Badge>
+            <Badge variant="muted">
+              <Database className="h-3 w-3" aria-hidden />
+              {settings.context.maxRetrievedFiles} vault matches
+            </Badge>
+            <Badge variant={settings.editing.directApply ? "success" : "muted"}>
+              <FileCode2 className="h-3 w-3" aria-hidden />
+              {settings.editing.directApply ? "Direct edits on" : "Direct edits off"}
+            </Badge>
+          </div>
+        </div>
+      </header>
+
+      <Tabs defaultValue="provider" className="flex w-full flex-col gap-3">
+        <TabsList className="j-chat-settings-tabs">
           <TabsTrigger value="provider">
-            <Sparkles className="mr-1 h-3 w-3" />
+            <Sparkles className="h-3.5 w-3.5" />
             Provider
           </TabsTrigger>
           <TabsTrigger value="context">
-            <FolderCog className="mr-1 h-3 w-3" />
+            <FolderCog className="h-3.5 w-3.5" />
             Context
           </TabsTrigger>
           <TabsTrigger value="editing">
-            <Settings2 className="mr-1 h-3 w-3" />
+            <Settings2 className="h-3.5 w-3.5" />
             Editing
           </TabsTrigger>
           <TabsTrigger value="advanced">
-            <SlidersHorizontal className="mr-1 h-3 w-3" />
+            <SlidersHorizontal className="h-3.5 w-3.5" />
             Advanced
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="provider">
+        <TabsContent value="provider" className="mt-0">
           <ProviderSection
             settings={settings}
             onProviderChange={updateProvider}
@@ -72,15 +114,15 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
           />
         </TabsContent>
 
-        <TabsContent value="context">
+        <TabsContent value="context" className="mt-0">
           <ContextSection context={settings.context} onChange={updateContext} />
         </TabsContent>
 
-        <TabsContent value="editing">
+        <TabsContent value="editing" className="mt-0">
           <EditingSection editing={settings.editing} onChange={updateEditing} />
         </TabsContent>
 
-        <TabsContent value="advanced">
+        <TabsContent value="advanced" className="mt-0">
           <AdvancedSection settings={settings} onOpenAiChange={updateOpenAi} onCodexChange={updateCodex} />
         </TabsContent>
       </Tabs>
@@ -102,22 +144,24 @@ function ProviderSection({
   onCodexChange
 }: ProviderSectionProps): JSX.Element {
   return (
-    <Card>
+    <Card className="j-chat-settings-card">
       <CardHeader>
-        <CardTitle>Provider</CardTitle>
+        <CardTitle>Provider connection</CardTitle>
         <CardDescription>
-          Choose how J Chat reaches a model. API keys are stored locally in your vault settings.
+          Route requests through an OpenAI-compatible endpoint or the Codex SDK without changing chat orchestration.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         <Field label="Provider mode" htmlFor="j-chat-provider">
           <Select value={settings.provider} onValueChange={(value) => onProviderChange(value as ProviderMode)}>
             <SelectTrigger id="j-chat-provider">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="openai-compatible">OpenAI-compatible API</SelectItem>
-              <SelectItem value="codex-sdk">Codex SDK</SelectItem>
+              <SelectGroup>
+                <SelectItem value="openai-compatible">OpenAI-compatible API</SelectItem>
+                <SelectItem value="codex-sdk">Codex SDK</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </Field>
@@ -142,7 +186,7 @@ function OpenAiFields({
   onChange: (next: Partial<OpenAICompatibleSettings>) => void;
 }): JSX.Element {
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <Field label="Base URL" htmlFor="openai-base">
         <Input
           id="openai-base"
@@ -159,7 +203,7 @@ function OpenAiFields({
           placeholder="sk-…"
         />
       </Field>
-      <Field label="Model" htmlFor="openai-model">
+      <Field label="Model" htmlFor="openai-model" className="md:col-span-2">
         <Input
           id="openai-model"
           value={settings.model}
@@ -179,7 +223,7 @@ function CodexFields({
   onChange: (next: Partial<CodexSdkSettings>) => void;
 }): JSX.Element {
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <Field label="API key" htmlFor="codex-key">
         <SecretInput
           id="codex-key"
@@ -204,7 +248,7 @@ function CodexFields({
           placeholder="gpt-5.1-codex"
         />
       </Field>
-      <Field label="Working directory" htmlFor="codex-cwd" hint="Absolute path Codex should treat as the workspace.">
+      <Field label="Working directory" htmlFor="codex-cwd" hint="Absolute path Codex should treat as the workspace." className="md:col-span-2">
         <Input
           id="codex-cwd"
           value={settings.workingDirectory}
@@ -212,7 +256,7 @@ function CodexFields({
           placeholder="/path/to/vault"
         />
       </Field>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:col-span-2 sm:grid-cols-2">
         <Field label="Approval policy">
           <Select
             value={settings.approvalPolicy}
@@ -222,10 +266,12 @@ function CodexFields({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="never">never</SelectItem>
-              <SelectItem value="on-request">on request</SelectItem>
-              <SelectItem value="on-failure">on failure</SelectItem>
-              <SelectItem value="untrusted">untrusted</SelectItem>
+              <SelectGroup>
+                <SelectItem value="never">never</SelectItem>
+                <SelectItem value="on-request">on request</SelectItem>
+                <SelectItem value="on-failure">on failure</SelectItem>
+                <SelectItem value="untrusted">untrusted</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </Field>
@@ -238,14 +284,16 @@ function CodexFields({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="read-only">read-only</SelectItem>
-              <SelectItem value="workspace-write">workspace-write</SelectItem>
-              <SelectItem value="danger-full-access">danger-full-access</SelectItem>
+              <SelectGroup>
+                <SelectItem value="read-only">read-only</SelectItem>
+                <SelectItem value="workspace-write">workspace-write</SelectItem>
+                <SelectItem value="danger-full-access">danger-full-access</SelectItem>
+              </SelectGroup>
             </SelectContent>
           </Select>
         </Field>
       </div>
-      <Field label="Reasoning effort">
+      <Field label="Reasoning effort" className="md:col-span-2">
         <Select
           value={settings.modelReasoningEffort}
           onValueChange={(value) =>
@@ -256,11 +304,13 @@ function CodexFields({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="minimal">minimal</SelectItem>
-            <SelectItem value="low">low</SelectItem>
-            <SelectItem value="medium">medium</SelectItem>
-            <SelectItem value="high">high</SelectItem>
-            <SelectItem value="xhigh">xhigh</SelectItem>
+            <SelectGroup>
+              <SelectItem value="minimal">minimal</SelectItem>
+              <SelectItem value="low">low</SelectItem>
+              <SelectItem value="medium">medium</SelectItem>
+              <SelectItem value="high">high</SelectItem>
+              <SelectItem value="xhigh">xhigh</SelectItem>
+            </SelectGroup>
           </SelectContent>
         </Select>
       </Field>
@@ -276,12 +326,12 @@ function ContextSection({
   onChange: (next: Partial<ContextSettings>) => void;
 }): JSX.Element {
   return (
-    <Card>
+    <Card className="j-chat-settings-card">
       <CardHeader>
-        <CardTitle>Context</CardTitle>
-        <CardDescription>Tune how much vault content is sent with each request.</CardDescription>
+        <CardTitle>Context budget</CardTitle>
+        <CardDescription>Set how aggressively J Chat reads the current note and retrieves related vault snippets.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <NumberField
           label="Max chars from active file"
           hint="Truncate the current note before sending."
@@ -322,12 +372,12 @@ function EditingSection({
   onChange: (next: Partial<EditingSettings>) => void;
 }): JSX.Element {
   return (
-    <Card>
+    <Card className="j-chat-settings-card">
       <CardHeader>
-        <CardTitle>Editing</CardTitle>
+        <CardTitle>Note editing</CardTitle>
         <CardDescription>Control how J Chat applies suggested changes to your notes.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-col gap-3">
         <ToggleField
           label="Direct apply edits"
           hint="When enabled, edit blocks returned by the model are applied to the active note automatically."
@@ -349,12 +399,12 @@ function AdvancedSection({
   onCodexChange: (next: Partial<CodexSdkSettings>) => void;
 }): JSX.Element {
   return (
-    <Card>
+    <Card className="j-chat-settings-card">
       <CardHeader>
-        <CardTitle>Advanced</CardTitle>
-        <CardDescription>Power-user knobs for the active provider.</CardDescription>
+        <CardTitle>Advanced provider options</CardTitle>
+        <CardDescription>Provider-specific fields that should only be changed when the endpoint requires them.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-col gap-3">
         {settings.provider === "openai-compatible" ? (
           <Field
             label="Extra request headers (JSON)"
@@ -395,8 +445,10 @@ type FieldProps = {
 
 function Field({ label, htmlFor, hint, className, children }: FieldProps): JSX.Element {
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <Label htmlFor={htmlFor}>{label}</Label>
+    <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
+      <Label htmlFor={htmlFor} className="text-xs font-medium">
+        {label}
+      </Label>
       {children}
       {hint ? <p className="text-[0.6875rem] text-muted-foreground">{hint}</p> : null}
     </div>
@@ -443,8 +495,8 @@ type ToggleFieldProps = {
 function ToggleField({ label, hint, checked, onChange }: ToggleFieldProps): JSX.Element {
   const id = React.useId();
   return (
-    <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-background px-3 py-2">
-      <div className="min-w-0 space-y-0.5">
+    <div className="j-chat-settings-toggle">
+      <div className="flex min-w-0 flex-col gap-1">
         <Label htmlFor={id} className="text-sm">
           {label}
         </Label>

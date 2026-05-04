@@ -17,6 +17,7 @@ export type JChatViewOptions = {
 export class JChatView extends ItemView {
   private root: Root | null = null;
   private unsubscribe: (() => void) | null = null;
+  private editorStateKey = "";
 
   constructor(leaf: WorkspaceLeaf, private readonly options: JChatViewOptions) {
     super(leaf);
@@ -36,10 +37,13 @@ export class JChatView extends ItemView {
 
   async onOpen(): Promise<void> {
     this.contentEl.empty();
+    this.contentEl.addClass("j-chat-view-content");
     const mount = this.contentEl.createDiv({ cls: "j-chat-view-host" });
     this.root = createRoot(mount);
     this.unsubscribe = this.options.controller.subscribe(() => this.render());
     this.registerEvent(this.app.workspace.on("active-leaf-change", () => this.render()));
+    this.registerEvent(this.app.workspace.on("file-open", () => this.render()));
+    this.registerInterval(window.setInterval(() => this.renderIfEditorStateChanged(), 250));
     this.render();
   }
 
@@ -48,13 +52,27 @@ export class JChatView extends ItemView {
     this.unsubscribe = null;
     this.root?.unmount();
     this.root = null;
+    this.contentEl.removeClass("j-chat-view-content");
     this.contentEl.empty();
+  }
+
+  private renderIfEditorStateChanged(): void {
+    const nextKey = this.getEditorStateKey();
+    if (nextKey === this.editorStateKey) return;
+    this.editorStateKey = nextKey;
+    this.render();
+  }
+
+  private getEditorStateKey(): string {
+    const active = getActiveEditorState(this.app);
+    return `${active.file?.path ?? ""}\n${active.selectedText}`;
   }
 
   private render(): void {
     if (!this.root) return;
     const settings = this.options.getSettings();
     const active = getActiveEditorState(this.app);
+    this.editorStateKey = `${active.file?.path ?? ""}\n${active.selectedText}`;
     this.root.render(
       createElement(ChatPanel, {
         snapshot: this.options.controller.getSnapshot(),
@@ -82,6 +100,7 @@ export class JChatView extends ItemView {
         onRemoveAttachment: (path: string) => {
           this.options.controller.removeAttachment(path);
         },
+        onInsertSelection: () => getActiveEditorState(this.app).selectedText,
         onOpenSource: (path: string) => {
           void this.app.workspace.openLinkText(path, "", true);
         }
