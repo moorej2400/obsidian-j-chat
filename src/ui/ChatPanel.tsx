@@ -4,18 +4,29 @@ import remarkGfm from "remark-gfm";
 import {
   AlertCircle,
   Bot,
+  BookMarked,
+  Brain,
   CircleDot,
+  FileSearch,
   FileText,
+  HelpCircle,
   Highlighter,
+  History,
+  Lightbulb,
   Loader2,
+  Menu,
   MessageSquareText,
   Paperclip,
   Pencil,
   Plus,
   RadioTower,
+  Search,
   Send,
+  Settings,
+  SlidersHorizontal,
   Sparkles,
   SquarePen,
+  Wand2,
   X
 } from "lucide-react";
 import type { AttachedFile, ChatItem, ChatSource } from "@/chat/chatTypes";
@@ -54,23 +65,35 @@ export type ChatPanelProps = {
   onRemoveAttachment: (path: string) => void;
   onInsertSelection?: () => string | void | Promise<string | void>;
   onOpenSource?: (path: string) => void;
+  onOpenSettings?: () => void;
 };
+
+type PanelPage = "chat" | "prompts" | "settings";
+
+function pageTitle(page: PanelPage): string {
+  if (page === "prompts") return "Prompt templates";
+  if (page === "settings") return "Control center";
+  return "J Chat";
+}
 
 export function ChatPanel(props: ChatPanelProps): JSX.Element {
   const { snapshot, providerStatus } = props;
   const [draft, setDraft] = React.useState("");
+  const [page, setPage] = React.useState<PanelPage>("chat");
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
   const transcriptRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     const node = transcriptRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
-  }, [snapshot.items.length, snapshot.isSending]);
+  }, [snapshot.items.length, snapshot.isSending, page]);
 
   const handleSend = React.useCallback(async () => {
     const trimmed = draft.trim();
     if (trimmed.length === 0 || snapshot.isSending) return;
     setDraft("");
+    setPage("chat");
     await props.onSend(trimmed);
   }, [draft, snapshot.isSending, props]);
 
@@ -79,7 +102,14 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
     const selectedText = (typeof freshSelection === "string" ? freshSelection : props.selectedText)?.trim();
     if (!selectedText) return;
     setDraft((current) => `${current}${current.trim().length > 0 ? "\n\n" : ""}${selectedText}`);
+    setPage("chat");
   }, [props]);
+
+  const useTemplate = React.useCallback((prompt: string) => {
+    setDraft(prompt);
+    setPage("chat");
+    setDrawerOpen(false);
+  }, []);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -90,8 +120,177 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
 
   return (
     <section className="j-chat-root j-chat-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground">
-      <PanelHeader providerStatus={providerStatus} onAttachFile={props.onAttachFile} />
+      <AppTopBar
+        page={page}
+        providerStatus={providerStatus}
+        onToggleDrawer={() => setDrawerOpen((open) => !open)}
+        onOpenSettings={() => {
+          setPage("settings");
+        }}
+      />
 
+      <SideDrawer
+        open={drawerOpen}
+        page={page}
+        onNavigate={(next) => {
+          setPage(next);
+          setDrawerOpen(false);
+        }}
+        onClose={() => setDrawerOpen(false)}
+        onOpenSettings={props.onOpenSettings}
+      />
+
+      {page === "chat" ? (
+        <ChatWorkspace
+          {...props}
+          transcriptRef={transcriptRef}
+          onInsertSelection={insertSelection}
+        />
+      ) : page === "prompts" ? (
+        <PromptLibrary
+          hasSelection={props.hasSelection}
+          currentFile={props.currentFile}
+          onUseTemplate={useTemplate}
+          onOpenSettings={props.onOpenSettings}
+        />
+      ) : (
+        <SettingsHub
+          providerStatus={providerStatus}
+          snapshot={snapshot}
+          currentFile={props.currentFile}
+          hasSelection={props.hasSelection}
+          selectedText={props.selectedText}
+          onOpenSettings={props.onOpenSettings}
+          onToggleRestrictToCurrentFile={props.onToggleRestrictToCurrentFile}
+        />
+      )}
+
+      {page === "chat" ? <BottomNav page={page} onNavigate={setPage} /> : null}
+
+      {page === "chat" ? (
+        <Composer
+          draft={draft}
+          onDraftChange={setDraft}
+          onKeyDown={handleKeyDown}
+          onSend={handleSend}
+          onInsertSelection={insertSelection}
+          onAttachFile={props.onAttachFile}
+          onRemoveAttachment={props.onRemoveAttachment}
+          attachments={snapshot.attachments}
+          hasSelection={props.hasSelection}
+          isSending={snapshot.isSending}
+        />
+      ) : null}
+
+      {page !== "chat" ? <BottomNav page={page} onNavigate={setPage} /> : null}
+    </section>
+  );
+}
+
+function AppTopBar({
+  page,
+  providerStatus,
+  onToggleDrawer,
+  onOpenSettings
+}: {
+  page: PanelPage;
+  providerStatus: ProviderStatus;
+  onToggleDrawer: () => void;
+  onOpenSettings: () => void;
+}): JSX.Element {
+  return (
+    <header className="j-chat-app-bar">
+      <div className="flex min-w-0 items-center gap-2">
+        <Button variant="ghost" size="icon-sm" type="button" onClick={onToggleDrawer} aria-label="Open J Chat menu">
+          <Menu className="h-4 w-4" />
+        </Button>
+        <div className="min-w-0">
+          <div className="truncate text-sm font-semibold">{pageTitle(page)}</div>
+          <div className="mt-0.5">
+            <ProviderStatusBadge status={providerStatus} />
+          </div>
+        </div>
+      </div>
+      <Button variant="ghost" size="icon-sm" type="button" onClick={onOpenSettings} aria-label="Open settings">
+        <SlidersHorizontal className="h-4 w-4" />
+      </Button>
+    </header>
+  );
+}
+
+function SideDrawer({
+  open,
+  page,
+  onNavigate,
+  onClose,
+  onOpenSettings
+}: {
+  open: boolean;
+  page: PanelPage;
+  onNavigate: (page: PanelPage) => void;
+  onClose: () => void;
+  onOpenSettings?: () => void;
+}): JSX.Element {
+  return (
+    <>
+      <button
+        type="button"
+        className={cn("j-chat-drawer-scrim", open && "is-open")}
+        aria-label="Close J Chat menu"
+        onClick={onClose}
+      />
+      <aside className={cn("j-chat-drawer", open && "is-open")} aria-hidden={!open}>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <div className="text-sm font-semibold">Knowledge workspace</div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Move between chat, prompt templates, and configuration.
+            </p>
+          </div>
+          <Button variant="ghost" size="icon-sm" type="button" onClick={onClose} aria-label="Close menu">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        <nav className="mt-5 flex flex-col gap-1">
+          <DrawerItem icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
+          <DrawerItem icon={<BookMarked />} label="Prompt templates" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
+          <DrawerItem icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
+          <DrawerItem icon={<History />} label="Chat history" active={false} onClick={() => onNavigate("chat")} />
+          <DrawerItem icon={<HelpCircle />} label="Help and docs" active={false} onClick={() => onOpenSettings?.()} />
+        </nav>
+      </aside>
+    </>
+  );
+}
+
+function DrawerItem({
+  icon,
+  label,
+  active,
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}): JSX.Element {
+  return (
+    <button type="button" className={cn("j-chat-drawer-item", active && "is-active")} onClick={onClick}>
+      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+function ChatWorkspace(
+  props: ChatPanelProps & {
+    transcriptRef: React.RefObject<HTMLDivElement>;
+    onInsertSelection: () => void | Promise<void>;
+  }
+): JSX.Element {
+  const { snapshot } = props;
+  return (
+    <>
       <ContextCockpit
         currentFile={props.currentFile}
         restrictToCurrentFile={snapshot.restrictToCurrentFile}
@@ -104,7 +303,7 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
       <Separator />
 
       <ScrollArea className="min-h-0 flex-1" viewportClassName="px-3 py-3">
-        <div ref={transcriptRef} className="flex flex-col gap-3">
+        <div ref={props.transcriptRef} className="flex flex-col gap-3">
           {snapshot.items.length === 0 ? (
             <EmptyState restrictToCurrentFile={snapshot.restrictToCurrentFile} />
           ) : (
@@ -124,57 +323,271 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
           </Alert>
         </div>
       ) : null}
-
-      <Composer
-        draft={draft}
-        onDraftChange={setDraft}
-        onKeyDown={handleKeyDown}
-        onSend={handleSend}
-        onInsertSelection={insertSelection}
-        onAttachFile={props.onAttachFile}
-        onRemoveAttachment={props.onRemoveAttachment}
-        attachments={snapshot.attachments}
-        hasSelection={props.hasSelection}
-        isSending={snapshot.isSending}
-      />
-    </section>
+    </>
   );
 }
 
-function PanelHeader({
-  providerStatus,
-  onAttachFile
+function PromptLibrary({
+  hasSelection,
+  currentFile,
+  onUseTemplate,
+  onOpenSettings
 }: {
-  providerStatus: ProviderStatus;
-  onAttachFile: () => void | Promise<void>;
+  hasSelection: boolean;
+  currentFile: { path: string; basename: string } | null;
+  onUseTemplate: (prompt: string) => void;
+  onOpenSettings?: () => void;
+}): JSX.Element {
+  const templates = [
+    {
+      icon: <Highlighter />,
+      title: "Summarize selection",
+      description: "Distill highlighted text into decisions, action items, and open questions.",
+      tags: ["Productivity", "Text"],
+      prompt: "Summarize the selected text. Extract key points, decisions, action items, and unresolved questions."
+    },
+    {
+      icon: <FileSearch />,
+      title: "Find related notes",
+      description: "Ask J Chat to connect this note with nearby vault context.",
+      tags: ["Knowledge", "Context"],
+      prompt: "Find related notes and explain why they matter for the current file."
+    },
+    {
+      icon: <Lightbulb />,
+      title: "Explain concept",
+      description: "Turn dense material into a clear explanation with examples.",
+      tags: ["Learning", "Clarify"],
+      prompt: "Explain the main concept in this note in plain language, then give practical examples."
+    }
+  ];
+
+  return (
+    <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-page-viewport">
+      <main className="j-chat-page-stack">
+        <PageIntro
+          title="Prompt templates"
+          description="Reusable instructions for the current note, selected text, and vault context."
+          actionLabel="Create template"
+          onAction={() => onUseTemplate("Create a reusable prompt template for the workflow in this note.")}
+        />
+
+        <div className="j-chat-search-shell">
+          <Search className="h-4 w-4 text-muted-foreground" aria-hidden />
+          <span className="truncate text-sm text-muted-foreground">Search templates...</span>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {templates.map((template) => (
+            <TemplateCard key={template.title} {...template} onUse={() => onUseTemplate(template.prompt)} />
+          ))}
+        </div>
+
+        <section className="j-chat-smart-panel">
+          <div className="relative z-10">
+            <Brain className="h-5 w-5" aria-hidden />
+            <h3 className="mt-3 text-lg font-semibold">Smart composer</h3>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Build prompts from the active note, current selection, attached files, and vault retrieval mode.
+            </p>
+            <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={onOpenSettings}>
+              <Settings className="h-3.5 w-3.5" />
+              Settings
+            </Button>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-2 gap-3">
+          <MetricCard icon={<Wand2 />} title="Selection" value={hasSelection ? "Ready" : "None"} />
+          <MetricCard icon={<FileText />} title="Active note" value={currentFile?.basename ?? "No note"} />
+        </div>
+      </main>
+    </ScrollArea>
+  );
+}
+
+function TemplateCard({
+  icon,
+  title,
+  description,
+  tags,
+  onUse
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  tags: string[];
+  onUse: () => void;
 }): JSX.Element {
   return (
-    <header className="relative z-10 flex items-start justify-between gap-2 px-3 pb-2 pt-3">
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="j-chat-mark" aria-hidden>
-            <MessageSquareText className="h-3.5 w-3.5" />
-          </span>
-          <div className="truncate text-[0.9375rem] font-semibold leading-none tracking-normal">
-            J Chat
+    <button type="button" className="j-chat-template-card group" onClick={onUse}>
+      <span className="j-chat-template-icon" aria-hidden>{icon}</span>
+      <span className="min-w-0 flex-1 text-left">
+        <span className="block break-words text-sm font-semibold leading-snug">{title}</span>
+        <span className="mt-1 block break-words text-xs leading-relaxed text-muted-foreground">{description}</span>
+        <span className="mt-3 flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <span key={tag} className="j-chat-template-tag">{tag}</span>
+          ))}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function SettingsHub({
+  providerStatus,
+  snapshot,
+  currentFile,
+  hasSelection,
+  selectedText,
+  onOpenSettings,
+  onToggleRestrictToCurrentFile
+}: {
+  providerStatus: ProviderStatus;
+  snapshot: ChatPanelSnapshot;
+  currentFile: { path: string; basename: string } | null;
+  hasSelection: boolean;
+  selectedText?: string;
+  onOpenSettings?: () => void;
+  onToggleRestrictToCurrentFile: (value: boolean) => void;
+}): JSX.Element {
+  return (
+    <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-page-viewport">
+      <main className="j-chat-page-stack">
+        <PageIntro
+          title="Control center"
+          description="Provider, context, and editing controls for the side-panel assistant."
+          actionLabel="Plugin settings"
+          onAction={onOpenSettings}
+        />
+
+        <section className="j-chat-settings-grid">
+          <StatusBlock icon={<CircleDot />} label="Provider" value={providerStatus.label} detail={providerStatus.detail} />
+          <StatusBlock icon={<FileText />} label="Active note" value={currentFile?.basename ?? "No active note"} />
+          <StatusBlock icon={<Highlighter />} label="Selection" value={hasSelection ? `${selectedText?.trim().length ?? 0} chars` : "None"} />
+          <StatusBlock icon={<Paperclip />} label="Attachments" value={`${snapshot.attachments.length} files`} />
+        </section>
+
+        <section className="j-chat-settings-panel">
+          <div className="flex min-w-0 items-start gap-3">
+            <RadioTower className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold">Context scope</div>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                Toggle whether responses stay inside the active file or include vault retrieval.
+              </p>
+            </div>
+            <Switch
+              checked={snapshot.restrictToCurrentFile}
+              onCheckedChange={(checked) => onToggleRestrictToCurrentFile(Boolean(checked))}
+              aria-label="Restrict context to current file"
+            />
           </div>
-        </div>
-        <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
-          <ProviderStatusBadge status={providerStatus} />
-        </div>
+        </section>
+
+        <section className="j-chat-settings-panel">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold">Advanced configuration</div>
+              <p className="mt-1 text-xs text-muted-foreground">API keys, endpoint URLs, Codex SDK options, and edit behavior.</p>
+            </div>
+            <Button type="button" size="sm" onClick={onOpenSettings}>
+              Open
+            </Button>
+          </div>
+        </section>
+      </main>
+    </ScrollArea>
+  );
+}
+
+function PageIntro({
+  title,
+  description,
+  actionLabel,
+  onAction
+}: {
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}): JSX.Element {
+  return (
+    <header className="j-chat-page-intro">
+      <div>
+        <h2 className="text-lg font-semibold leading-tight">{title}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
       </div>
-      <Button
-        variant="secondary"
-        size="icon"
-        type="button"
-        onClick={() => void onAttachFile()}
-        title="Attach a vault file"
-        aria-label="Attach a vault file"
-        className="j-chat-icon-button shrink-0"
-      >
-        <Paperclip className="h-4 w-4" />
-      </Button>
+      {actionLabel ? (
+        <Button type="button" variant="secondary" size="sm" className="j-chat-page-action" onClick={onAction}>
+          <Plus className="h-4 w-4" />
+          {actionLabel}
+        </Button>
+      ) : null}
     </header>
+  );
+}
+
+function StatusBlock({
+  icon,
+  label,
+  value,
+  detail
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  detail?: string;
+}): JSX.Element {
+  return (
+    <div className="j-chat-status-block">
+      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
+      <div className="min-w-0">
+        <div className="j-chat-kicker">{label}</div>
+        <div className="truncate text-sm font-semibold">{value}</div>
+        {detail ? <div className="mt-1 truncate text-[0.6875rem] text-muted-foreground">{detail}</div> : null}
+      </div>
+    </div>
+  );
+}
+
+function MetricCard({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }): JSX.Element {
+  return (
+    <div className="j-chat-metric-card">
+      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
+      <div className="mt-2 text-xs text-muted-foreground">{title}</div>
+      <div className="mt-1 truncate text-sm font-semibold">{value}</div>
+    </div>
+  );
+}
+
+function BottomNav({ page, onNavigate }: { page: PanelPage; onNavigate: (page: PanelPage) => void }): JSX.Element {
+  return (
+    <nav className="j-chat-bottom-nav" aria-label="J Chat navigation">
+      <NavButton icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
+      <NavButton icon={<BookMarked />} label="Prompts" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
+      <NavButton icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
+    </nav>
+  );
+}
+
+function NavButton({
+  icon,
+  label,
+  active,
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}): JSX.Element {
+  return (
+    <button type="button" className={cn("j-chat-bottom-nav-button", active && "is-active")} onClick={onClick}>
+      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
+      <span>{label}</span>
+    </button>
   );
 }
 
@@ -213,7 +626,7 @@ function ContextCockpit({
 }: ContextCockpitProps): JSX.Element {
   const trimmedSelection = selectedText?.trim() ?? "";
   return (
-    <div className="relative z-10 px-3 pb-3">
+    <div className="relative z-10 px-3 pb-3 pt-3">
       <div className="j-chat-context-grid grid grid-cols-2 gap-1.5">
         <ContextTile
           icon={<FileText className="h-3.5 w-3.5" />}
@@ -418,7 +831,7 @@ function Composer(props: ComposerProps): JSX.Element {
           onChange={(event) => props.onDraftChange(event.target.value)}
           onKeyDown={props.onKeyDown}
           placeholder="Ask J Chat... (Shift+Enter for newline)"
-          rows={4}
+          rows={3}
           className="j-chat-textarea pr-12 text-sm"
           aria-label="Chat message"
           disabled={props.isSending}
@@ -444,6 +857,7 @@ function Composer(props: ComposerProps): JSX.Element {
             variant="secondary"
             size="xs"
             onClick={() => void props.onAttachFile()}
+            aria-label="Attach vault file"
             title="Attach a vault file"
           >
             <Plus className="h-3.5 w-3.5" />

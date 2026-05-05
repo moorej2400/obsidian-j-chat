@@ -16,7 +16,8 @@ export default class JChatPlugin extends Plugin {
       J_CHAT_VIEW_TYPE,
       (leaf) => new JChatView(leaf, {
         controller: this.requireController(),
-        getSettings: () => this.settings
+        getSettings: () => this.settings,
+        onOpenSettings: () => this.openSettings()
       })
     );
 
@@ -67,6 +68,18 @@ export default class JChatPlugin extends Plugin {
   private async revealAndActivate(leaf: WorkspaceLeaf): Promise<void> {
     await this.app.workspace.revealLeaf(leaf);
     this.app.workspace.setActiveLeaf(leaf, { focus: false });
+  }
+
+  private openSettings(): void {
+    const setting = (this.app as unknown as {
+      setting?: {
+        open?: () => void;
+        openTabById?: (id: string) => void;
+      };
+    }).setting;
+
+    setting?.open?.();
+    setting?.openTabById?.(this.manifest.id);
   }
 
   private requireController(): ChatController {

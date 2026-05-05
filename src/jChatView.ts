@@ -12,6 +12,7 @@ export const J_CHAT_VIEW_TYPE = "j-chat-view";
 export type JChatViewOptions = {
   controller: ChatController;
   getSettings: () => JChatSettings;
+  onOpenSettings?: () => void;
 };
 
 export class JChatView extends ItemView {
@@ -103,7 +104,8 @@ export class JChatView extends ItemView {
         onInsertSelection: () => getActiveEditorState(this.app).selectedText,
         onOpenSource: (path: string) => {
           void this.app.workspace.openLinkText(path, "", true);
-        }
+        },
+        onOpenSettings: this.options.onOpenSettings
       })
     );
   }

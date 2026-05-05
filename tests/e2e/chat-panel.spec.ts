@@ -20,7 +20,7 @@ test("side panel sends messages with active note, selection, attachments, and va
   await page.getByRole("button", { name: /insert selection/i }).click();
   await expect(page.getByLabel("Chat message")).toHaveValue(/selected acceptance criteria/i);
 
-  await page.getByRole("button", { name: /attach/i }).first().click();
+  await page.getByRole("button", { name: "Attach vault file" }).click();
   await expect(page.getByRole("button", { name: "Remove attachment Architecture.md" })).toBeVisible();
 
   await page.getByLabel("Restrict context to current file").click();
