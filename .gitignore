@@ -4,6 +4,7 @@ main.js.map
 styles.css
 dist/
 build/
+codex-runtime/
 coverage/
 test-results/
 playwright-report/

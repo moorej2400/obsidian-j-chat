@@ -27,12 +27,16 @@ import {
   Sparkles,
   SquarePen,
   Wand2,
+  Wrench,
   X
 } from "lucide-react";
 import type { AttachedFile, ChatItem, ChatSource } from "@/chat/chatTypes";
+import type { ChatSessionSummary } from "@/chat/chatSessions";
+import type { AgentActivityEvent } from "@/providers/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -49,6 +53,9 @@ export type ChatPanelSnapshot = {
   items: ChatItem[];
   attachments: AttachedFile[];
   restrictToCurrentFile: boolean;
+  activeSessionId: string;
+  sessions: ChatSessionSummary[];
+  activity: AgentActivityEvent[];
   isSending: boolean;
   error: string | null;
 };
@@ -63,14 +70,18 @@ export type ChatPanelProps = {
   onToggleRestrictToCurrentFile: (value: boolean) => void;
   onAttachFile: () => void | Promise<void>;
   onRemoveAttachment: (path: string) => void;
+  onNewSession: () => void;
+  onSelectSession: (sessionId: string) => void;
+  onRenameSession: (sessionId: string, title: string) => void;
   onInsertSelection?: () => string | void | Promise<string | void>;
   onOpenSource?: (path: string) => void;
   onOpenSettings?: () => void;
 };
 
-type PanelPage = "chat" | "prompts" | "settings";
+type PanelPage = "chat" | "history" | "prompts" | "settings";
 
 function pageTitle(page: PanelPage): string {
+  if (page === "history") return "Chat history";
   if (page === "prompts") return "Prompt templates";
   if (page === "settings") return "Control center";
   return "J Chat";
@@ -81,13 +92,19 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
   const [draft, setDraft] = React.useState("");
   const [page, setPage] = React.useState<PanelPage>("chat");
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [renameDraft, setRenameDraft] = React.useState("");
   const transcriptRef = React.useRef<HTMLDivElement | null>(null);
+  const activeSession = snapshot.sessions.find((session) => session.id === snapshot.activeSessionId) ?? snapshot.sessions[0];
 
   React.useEffect(() => {
     const node = transcriptRef.current;
     if (!node) return;
     node.scrollTop = node.scrollHeight;
   }, [snapshot.items.length, snapshot.isSending, page]);
+
+  React.useEffect(() => {
+    setRenameDraft(activeSession?.title ?? "");
+  }, [activeSession?.id, activeSession?.title]);
 
   const handleSend = React.useCallback(async () => {
     const trimmed = draft.trim();
@@ -122,8 +139,13 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
     <section className="j-chat-root j-chat-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground">
       <AppTopBar
         page={page}
+        currentSession={activeSession}
         providerStatus={providerStatus}
         onToggleDrawer={() => setDrawerOpen((open) => !open)}
+        onNewSession={() => {
+          props.onNewSession();
+          setPage("chat");
+        }}
         onOpenSettings={() => {
           setPage("settings");
         }}
@@ -145,6 +167,24 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
           {...props}
           transcriptRef={transcriptRef}
           onInsertSelection={insertSelection}
+        />
+      ) : page === "history" ? (
+        <HistoryPane
+          sessions={snapshot.sessions}
+          activeSessionId={snapshot.activeSessionId}
+          renameDraft={renameDraft}
+          onRenameDraftChange={setRenameDraft}
+          onNewSession={() => {
+            props.onNewSession();
+            setPage("chat");
+          }}
+          onSelectSession={(sessionId) => {
+            props.onSelectSession(sessionId);
+            setPage("chat");
+          }}
+          onRenameSession={() => {
+            props.onRenameSession(snapshot.activeSessionId, renameDraft);
+          }}
         />
       ) : page === "prompts" ? (
         <PromptLibrary
@@ -189,13 +229,17 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
 
 function AppTopBar({
   page,
+  currentSession,
   providerStatus,
   onToggleDrawer,
+  onNewSession,
   onOpenSettings
 }: {
   page: PanelPage;
+  currentSession?: ChatSessionSummary;
   providerStatus: ProviderStatus;
   onToggleDrawer: () => void;
+  onNewSession: () => void;
   onOpenSettings: () => void;
 }): JSX.Element {
   return (
@@ -206,14 +250,20 @@ function AppTopBar({
         </Button>
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold">{pageTitle(page)}</div>
-          <div className="mt-0.5">
+          <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
+            {currentSession ? <span className="max-w-[9rem] truncate text-[0.6875rem] text-muted-foreground">{currentSession.title}</span> : null}
             <ProviderStatusBadge status={providerStatus} />
           </div>
         </div>
       </div>
-      <Button variant="ghost" size="icon-sm" type="button" onClick={onOpenSettings} aria-label="Open settings">
-        <SlidersHorizontal className="h-4 w-4" />
-      </Button>
+      <div className="flex shrink-0 items-center gap-1">
+        <Button variant="ghost" size="icon-sm" type="button" onClick={onNewSession} aria-label="New chat" title="New chat">
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="icon-sm" type="button" onClick={onOpenSettings} aria-label="Open settings">
+          <SlidersHorizontal className="h-4 w-4" />
+        </Button>
+      </div>
     </header>
   );
 }
@@ -255,11 +305,73 @@ function SideDrawer({
           <DrawerItem icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
           <DrawerItem icon={<BookMarked />} label="Prompt templates" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
           <DrawerItem icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
-          <DrawerItem icon={<History />} label="Chat history" active={false} onClick={() => onNavigate("chat")} />
+          <DrawerItem icon={<History />} label="Chat history" active={page === "history"} onClick={() => onNavigate("history")} />
           <DrawerItem icon={<HelpCircle />} label="Help and docs" active={false} onClick={() => onOpenSettings?.()} />
         </nav>
       </aside>
     </>
+  );
+}
+
+function HistoryPane({
+  sessions,
+  activeSessionId,
+  renameDraft,
+  onRenameDraftChange,
+  onNewSession,
+  onSelectSession,
+  onRenameSession
+}: {
+  sessions: ChatSessionSummary[];
+  activeSessionId: string;
+  renameDraft: string;
+  onRenameDraftChange: (value: string) => void;
+  onNewSession: () => void;
+  onSelectSession: (sessionId: string) => void;
+  onRenameSession: () => void;
+}): JSX.Element {
+  return (
+    <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-page-viewport">
+      <main className="j-chat-page-stack">
+        <PageIntro title="Chat history" description="Start a fresh thread or jump back into a previous conversation." actionLabel="New chat" onAction={onNewSession} />
+
+        <section className="j-chat-settings-panel">
+          <Label htmlFor="j-chat-session-name" className="text-xs font-medium">Current chat name</Label>
+          <div className="mt-2 flex min-w-0 gap-2">
+            <input
+              id="j-chat-session-name"
+              aria-label="Current chat name"
+              className="j-chat-session-name-input"
+              value={renameDraft}
+              onChange={(event) => onRenameDraftChange(event.target.value)}
+            />
+            <Button type="button" size="sm" onClick={onRenameSession} aria-label="Save chat name">
+              Save
+            </Button>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-2" aria-label="Chat sessions">
+          {sessions.map((session) => (
+            <button
+              key={session.id}
+              type="button"
+              className={cn("j-chat-session-row", session.id === activeSessionId && "is-active")}
+              onClick={() => onSelectSession(session.id)}
+              aria-current={session.id === activeSessionId ? "true" : undefined}
+            >
+              <span className="min-w-0 flex-1 text-left">
+                <span className="block truncate text-sm font-semibold">{session.title}</span>
+                <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
+                  {session.messageCount} message{session.messageCount === 1 ? "" : "s"}
+                </span>
+              </span>
+              <MessageSquareText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            </button>
+          ))}
+        </section>
+      </main>
+    </ScrollArea>
   );
 }
 
@@ -311,7 +423,9 @@ function ChatWorkspace(
               <ChatMessage key={item.id} item={item} onOpenSource={props.onOpenSource} />
             ))
           )}
-          {snapshot.isSending ? <ThinkingIndicator /> : null}
+          {snapshot.isSending ? (
+            snapshot.activity.length > 0 ? <AgentActivityRail activity={snapshot.activity} /> : <ThinkingIndicator />
+          ) : null}
         </div>
       </ScrollArea>
 
@@ -325,6 +439,46 @@ function ChatWorkspace(
       ) : null}
     </>
   );
+}
+
+function AgentActivityRail({ activity }: { activity: AgentActivityEvent[] }): JSX.Element {
+  return (
+    <section className="j-chat-agent-activity" aria-label="Agent activity">
+      <div className="flex items-center gap-2 px-1">
+        <Brain className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+        <span className="text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground">Agent activity</span>
+      </div>
+      <div className="mt-2 flex flex-col gap-1.5">
+        {activity.map((item) => (
+          <AgentActivityRow key={item.id} item={item} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AgentActivityRow({ item }: { item: AgentActivityEvent }): JSX.Element {
+  const isRunning = item.status === "running";
+  const isError = item.status === "error";
+
+  return (
+    <div className={cn("j-chat-agent-activity-row", isError && "is-error")}>
+      <span className="j-chat-agent-activity-icon" aria-hidden>
+        {isRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : item.type === "tool" ? <Wrench className="h-3.5 w-3.5" /> : <CircleDot className="h-3.5 w-3.5" />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-xs font-semibold">{item.label}</span>
+        {item.detail ? <span className="mt-0.5 block truncate text-[0.6875rem] text-muted-foreground">{item.detail}</span> : null}
+      </span>
+      <span className="j-chat-agent-activity-status">{activityStatusLabel(item.status)}</span>
+    </div>
+  );
+}
+
+function activityStatusLabel(status: AgentActivityEvent["status"]): string {
+  if (status === "complete") return "Done";
+  if (status === "error") return "Error";
+  return "Running";
 }
 
 function PromptLibrary({
@@ -566,6 +720,7 @@ function BottomNav({ page, onNavigate }: { page: PanelPage; onNavigate: (page: P
   return (
     <nav className="j-chat-bottom-nav" aria-label="J Chat navigation">
       <NavButton icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
+      <NavButton icon={<History />} label="History" active={page === "history"} onClick={() => onNavigate("history")} />
       <NavButton icon={<BookMarked />} label="Prompts" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
       <NavButton icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
     </nav>

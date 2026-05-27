@@ -54,7 +54,7 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
     onChange({ ...settings, editing: { ...settings.editing, ...next } });
 
   return (
-    <div className="j-chat-root j-chat-settings-shell w-full max-w-4xl bg-background p-1 text-foreground">
+    <div className="j-chat-root j-chat-settings-shell h-full w-full bg-background p-1 text-foreground">
       <header className="j-chat-settings-hero">
         <div className="flex min-w-0 flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -71,7 +71,7 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
           <div className="flex flex-wrap gap-1.5">
             <Badge variant="outline">
               <KeyRound className="h-3 w-3" aria-hidden />
-              {settings.provider === "codex-sdk" ? "Codex SDK" : "OpenAI-compatible"}
+              {providerLabel(settings.provider)}
             </Badge>
             <Badge variant="muted">
               <Database className="h-3 w-3" aria-hidden />
@@ -85,7 +85,7 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
         </div>
       </header>
 
-      <Tabs defaultValue="provider" className="flex w-full flex-col gap-3">
+      <Tabs defaultValue="provider" className="flex min-h-0 w-full flex-1 flex-col gap-3">
         <TabsList className="j-chat-settings-tabs">
           <TabsTrigger value="provider">
             <Sparkles className="h-3.5 w-3.5" />
@@ -105,7 +105,7 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="provider" className="mt-0">
+        <TabsContent value="provider" className="mt-0 min-h-0 flex-1">
           <ProviderSection
             settings={settings}
             onProviderChange={updateProvider}
@@ -114,15 +114,15 @@ export function SettingsPage({ settings, onChange }: SettingsPageProps): JSX.Ele
           />
         </TabsContent>
 
-        <TabsContent value="context" className="mt-0">
+        <TabsContent value="context" className="mt-0 min-h-0 flex-1">
           <ContextSection context={settings.context} onChange={updateContext} />
         </TabsContent>
 
-        <TabsContent value="editing" className="mt-0">
+        <TabsContent value="editing" className="mt-0 min-h-0 flex-1">
           <EditingSection editing={settings.editing} onChange={updateEditing} />
         </TabsContent>
 
-        <TabsContent value="advanced" className="mt-0">
+        <TabsContent value="advanced" className="mt-0 min-h-0 flex-1">
           <AdvancedSection settings={settings} onOpenAiChange={updateOpenAi} onCodexChange={updateCodex} />
         </TabsContent>
       </Tabs>
@@ -148,7 +148,7 @@ function ProviderSection({
       <CardHeader>
         <CardTitle>Provider connection</CardTitle>
         <CardDescription>
-          Route requests through an OpenAI-compatible endpoint or the Codex SDK without changing chat orchestration.
+          Route requests through a plain chat endpoint, the AI SDK agent loop, or the Codex SDK.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -160,6 +160,7 @@ function ProviderSection({
             <SelectContent>
               <SelectGroup>
                 <SelectItem value="openai-compatible">OpenAI-compatible API</SelectItem>
+                <SelectItem value="ai-sdk-agent">Vercel AI SDK agent</SelectItem>
                 <SelectItem value="codex-sdk">Codex SDK</SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -168,7 +169,7 @@ function ProviderSection({
 
         <Separator />
 
-        {settings.provider === "openai-compatible" ? (
+        {settings.provider === "openai-compatible" || settings.provider === "ai-sdk-agent" ? (
           <OpenAiFields settings={settings.openai} onChange={onOpenAiChange} />
         ) : (
           <CodexFields settings={settings.codex} onChange={onCodexChange} />
@@ -176,6 +177,12 @@ function ProviderSection({
       </CardContent>
     </Card>
   );
+}
+
+function providerLabel(provider: ProviderMode): string {
+  if (provider === "codex-sdk") return "Codex SDK";
+  if (provider === "ai-sdk-agent") return "AI SDK Agent";
+  return "OpenAI-compatible";
 }
 
 function OpenAiFields({
@@ -240,12 +247,12 @@ function CodexFields({
           placeholder="https://…"
         />
       </Field>
-      <Field label="Model" htmlFor="codex-model">
+      <Field label="Model" htmlFor="codex-model" hint="Leave blank to use the Codex CLI default for the signed-in account.">
         <Input
           id="codex-model"
           value={settings.model}
           onChange={(event) => onChange({ model: event.target.value })}
-          placeholder="gpt-5.1-codex"
+          placeholder="Codex default"
         />
       </Field>
       <Field label="Working directory" htmlFor="codex-cwd" hint="Absolute path Codex should treat as the workspace." className="md:col-span-2">

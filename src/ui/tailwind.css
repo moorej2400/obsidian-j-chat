@@ -133,7 +133,7 @@
   }
 
   .j-chat-bottom-nav {
-    @apply relative z-20 grid h-14 shrink-0 grid-cols-3 gap-1 border-t border-border/80 bg-background/95 px-2 py-1.5 shadow-[0_-12px_34px_hsl(var(--background)/0.75)] backdrop-blur;
+    @apply relative z-20 grid h-14 shrink-0 grid-cols-4 gap-1 border-t border-border/80 bg-background/95 px-2 py-1.5 shadow-[0_-12px_34px_hsl(var(--background)/0.75)] backdrop-blur;
   }
 
   .j-chat-bottom-nav-button {
@@ -219,6 +219,18 @@
     @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
   }
 
+  .j-chat-session-name-input {
+    @apply min-h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2.5 text-sm shadow-sm transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .j-chat-session-row {
+    @apply flex min-h-14 w-full min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-card/80 px-3 py-2 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .j-chat-session-row.is-active {
+    @apply border-primary/40 bg-primary/10;
+  }
+
   .j-chat-metric-card {
     @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
   }
@@ -292,6 +304,26 @@
     @apply flex items-center gap-2 self-start rounded-md border border-border/70 bg-card/80 px-3 py-2 text-xs text-muted-foreground shadow-sm;
   }
 
+  .j-chat-agent-activity {
+    @apply w-full rounded-lg border border-border/70 bg-card/80 p-2 shadow-sm backdrop-blur;
+  }
+
+  .j-chat-agent-activity-row {
+    @apply flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-border/60 bg-background/70 px-2.5 py-2 text-card-foreground shadow-sm transition duration-300;
+  }
+
+  .j-chat-agent-activity-row.is-error {
+    @apply border-destructive/40 bg-destructive/10 text-destructive;
+  }
+
+  .j-chat-agent-activity-icon {
+    @apply inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted text-muted-foreground;
+  }
+
+  .j-chat-agent-activity-status {
+    @apply shrink-0 rounded-sm border border-border/60 bg-card px-1.5 py-0.5 text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground;
+  }
+
   .j-chat-empty {
     @apply flex min-h-[220px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card/55 px-4 py-8 text-center shadow-sm;
   }
@@ -320,8 +352,16 @@
     @apply rounded-md shadow-sm;
   }
 
+  .j-chat-settings-container {
+    @apply flex h-full min-h-0 w-full flex-col overflow-hidden p-0;
+  }
+
+  .j-chat-settings-mount {
+    @apply flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden;
+  }
+
   .j-chat-settings-shell {
-    @apply flex flex-col gap-3;
+    @apply flex min-h-0 flex-1 flex-col gap-3 overflow-auto;
   }
 
   .j-chat-settings-hero {
@@ -340,7 +380,7 @@
   }
 
   .j-chat-settings-card {
-    @apply rounded-lg border-border/70 bg-card/95 shadow-sm;
+    @apply min-h-full rounded-lg border-border/70 bg-card/95 shadow-sm;
   }
 
   .j-chat-settings-toggle {

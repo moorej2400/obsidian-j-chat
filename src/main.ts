@@ -10,7 +10,13 @@ export default class JChatPlugin extends Plugin {
 
   async onload(): Promise<void> {
     await this.loadSettings();
-    this.controller = new ChatController(this.app, () => this.settings);
+    this.controller = new ChatController(this.app, () => this.settings, {
+      pluginRuntimeDir: this.getPluginRuntimeDir(),
+      vaultBasePath: this.getVaultBasePath()
+    }, async (history) => {
+      this.settings = normalizeSettings({ ...this.settings, history });
+      await this.saveData(this.settings);
+    });
 
     this.registerView(
       J_CHAT_VIEW_TYPE,
@@ -80,6 +86,17 @@ export default class JChatPlugin extends Plugin {
 
     setting?.open?.();
     setting?.openTabById?.(this.manifest.id);
+  }
+
+  private getPluginRuntimeDir(): string {
+    const basePath = this.getVaultBasePath();
+    if (!basePath) return this.manifest.dir ?? "";
+    return `${basePath.replace(/[\\/]+$/, "")}/${this.manifest.dir ?? ""}`;
+  }
+
+  private getVaultBasePath(): string {
+    const adapter = this.app.vault.adapter as unknown as { basePath?: string };
+    return adapter.basePath ?? "";
   }
 
   private requireController(): ChatController {

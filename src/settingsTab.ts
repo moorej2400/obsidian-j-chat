@@ -14,7 +14,8 @@ export class JChatSettingTab extends PluginSettingTab {
 
   display(): void {
     this.containerEl.empty();
-    const mount = this.containerEl.createDiv();
+    this.containerEl.addClass("j-chat-settings-container");
+    const mount = this.containerEl.createDiv({ cls: "j-chat-settings-mount" });
     this.root?.unmount();
     this.root = createRoot(mount);
     this.render();
@@ -36,4 +37,3 @@ export class JChatSettingTab extends PluginSettingTab {
     );
   }
 }
-

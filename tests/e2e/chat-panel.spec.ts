@@ -31,3 +31,33 @@ test("side panel sends messages with active note, selection, attachments, and va
   await expect(page.locator("table")).toContainText("Source");
   await expect(page.getByText("edits applied")).toBeVisible();
 });
+
+test("side panel creates, renames, and switches chat sessions", async ({ page }) => {
+  await page.goto(harnessUrl);
+
+  await page.getByLabel("Chat message").fill("Remember this first thread");
+  await page.getByLabel("Send message").click();
+  await expect(page.getByText("Remember this first thread")).toBeVisible();
+
+  await page.getByLabel("New chat").click();
+  await expect(page.getByText("Ask about this note")).toBeVisible();
+  await expect(page.getByText("Remember this first thread")).not.toBeVisible();
+
+  await page.getByRole("button", { name: "History" }).click();
+  await page.getByLabel("Current chat name").fill("Second thread");
+  await page.getByLabel("Save chat name").click();
+  await expect(page.getByRole("button", { name: /Second thread/i })).toBeVisible();
+
+  await page.getByRole("button", { name: /Project Brief chat/i }).click();
+  await expect(page.getByText("Remember this first thread")).toBeVisible();
+});
+
+test("side panel shows agent activity while a response is running", async ({ page }) => {
+  await page.goto(harnessUrl);
+
+  await page.getByLabel("Chat message").fill("Use tools before answering");
+  await page.getByLabel("Send message").click();
+
+  await expect(page.getByText("Thinking")).toBeVisible();
+  await expect(page.getByText("Search vault")).toBeVisible();
+});

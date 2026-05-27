@@ -1,0 +1,22 @@
+{
+  "requiredTargets": [
+    "aarch64-apple-darwin",
+    "x86_64-pc-windows-msvc"
+  ],
+  "packages": {
+    "x86_64-unknown-linux-musl": "@openai/codex-linux-x64",
+    "aarch64-unknown-linux-musl": "@openai/codex-linux-arm64",
+    "x86_64-apple-darwin": "@openai/codex-darwin-x64",
+    "aarch64-apple-darwin": "@openai/codex-darwin-arm64",
+    "x86_64-pc-windows-msvc": "@openai/codex-win32-x64",
+    "aarch64-pc-windows-msvc": "@openai/codex-win32-arm64"
+  },
+  "packageSpecs": {
+    "x86_64-unknown-linux-musl": "npm:@openai/codex@0.125.0-linux-x64",
+    "aarch64-unknown-linux-musl": "npm:@openai/codex@0.125.0-linux-arm64",
+    "x86_64-apple-darwin": "npm:@openai/codex@0.125.0-darwin-x64",
+    "aarch64-apple-darwin": "npm:@openai/codex@0.125.0-darwin-arm64",
+    "x86_64-pc-windows-msvc": "npm:@openai/codex@0.125.0-win32-x64",
+    "aarch64-pc-windows-msvc": "npm:@openai/codex@0.125.0-win32-arm64"
+  }
+}

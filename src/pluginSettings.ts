@@ -1,4 +1,6 @@
-export type ProviderMode = "openai-compatible" | "codex-sdk";
+import { createInitialChatHistory, normalizeChatHistory, type ChatHistoryState } from "./chat/chatSessions";
+
+export type ProviderMode = "openai-compatible" | "codex-sdk" | "ai-sdk-agent";
 
 export type OpenAICompatibleSettings = {
   baseUrl: string;
@@ -33,6 +35,7 @@ export type JChatSettings = {
   codex: CodexSdkSettings;
   context: ContextSettings;
   editing: EditingSettings;
+  history: ChatHistoryState;
 };
 
 export const DEFAULT_SETTINGS: JChatSettings = {
@@ -46,7 +49,7 @@ export const DEFAULT_SETTINGS: JChatSettings = {
   codex: {
     apiKey: "",
     baseUrl: "",
-    model: "gpt-5.1-codex",
+    model: "",
     workingDirectory: "",
     approvalPolicy: "never",
     sandboxMode: "read-only",
@@ -59,10 +62,11 @@ export const DEFAULT_SETTINGS: JChatSettings = {
   },
   editing: {
     directApply: true
-  }
+  },
+  history: createInitialChatHistory(0)
 };
 
-const PROVIDERS = new Set<ProviderMode>(["openai-compatible", "codex-sdk"]);
+const PROVIDERS = new Set<ProviderMode>(["openai-compatible", "codex-sdk", "ai-sdk-agent"]);
 const APPROVAL_POLICIES = new Set<CodexSdkSettings["approvalPolicy"]>(["never", "on-request", "on-failure", "untrusted"]);
 const SANDBOX_MODES = new Set<CodexSdkSettings["sandboxMode"]>(["read-only", "workspace-write", "danger-full-access"]);
 const REASONING_EFFORTS = new Set<CodexSdkSettings["modelReasoningEffort"]>(["minimal", "low", "medium", "high", "xhigh"]);
@@ -85,7 +89,7 @@ export function normalizeSettings(raw: unknown): JChatSettings {
     codex: {
       apiKey: trimmed(codex.apiKey, DEFAULT_SETTINGS.codex.apiKey),
       baseUrl: stripTrailingSlashes(trimmed(codex.baseUrl, DEFAULT_SETTINGS.codex.baseUrl)),
-      model: trimmed(codex.model, DEFAULT_SETTINGS.codex.model),
+      model: normalizeCodexModel(codex.model),
       workingDirectory: trimmed(codex.workingDirectory, DEFAULT_SETTINGS.codex.workingDirectory),
       approvalPolicy: enumValue(codex.approvalPolicy, APPROVAL_POLICIES, DEFAULT_SETTINGS.codex.approvalPolicy),
       sandboxMode: enumValue(codex.sandboxMode, SANDBOX_MODES, DEFAULT_SETTINGS.codex.sandboxMode),
@@ -98,7 +102,8 @@ export function normalizeSettings(raw: unknown): JChatSettings {
     },
     editing: {
       directApply: typeof editing.directApply === "boolean" ? editing.directApply : DEFAULT_SETTINGS.editing.directApply
-    }
+    },
+    history: normalizeChatHistory(value.history)
   };
 }
 
@@ -112,6 +117,11 @@ function trimmed(value: unknown, fallback: string): string {
 
 function stripTrailingSlashes(value: string): string {
   return value.replace(/\/+$/, "");
+}
+
+function normalizeCodexModel(value: unknown): string {
+  const model = trimmed(value, DEFAULT_SETTINGS.codex.model);
+  return model === "gpt-5.1-codex" ? "" : model;
 }
 
 function enumValue<T extends string>(value: unknown, values: Set<T>, fallback: T): T {

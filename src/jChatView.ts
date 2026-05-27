@@ -77,13 +77,7 @@ export class JChatView extends ItemView {
     this.root.render(
       createElement(ChatPanel, {
         snapshot: this.options.controller.getSnapshot(),
-        providerStatus: {
-          label: settings.provider === "codex-sdk" ? "Codex SDK" : "OpenAI API",
-          ready: settings.provider === "codex-sdk"
-            ? settings.codex.model.trim().length > 0
-            : settings.openai.baseUrl.trim().length > 0 && settings.openai.model.trim().length > 0,
-          detail: settings.provider === "codex-sdk" ? settings.codex.model : `${settings.openai.baseUrl} · ${settings.openai.model}`
-        },
+        providerStatus: buildProviderStatus(settings),
         currentFile: active.file ? { path: active.file.path, basename: active.file.basename } : null,
         hasSelection: active.selectedText.trim().length > 0,
         selectedText: active.selectedText,
@@ -101,6 +95,15 @@ export class JChatView extends ItemView {
         onRemoveAttachment: (path: string) => {
           this.options.controller.removeAttachment(path);
         },
+        onNewSession: () => {
+          this.options.controller.startNewSession();
+        },
+        onSelectSession: (sessionId: string) => {
+          this.options.controller.selectSession(sessionId);
+        },
+        onRenameSession: (sessionId: string, title: string) => {
+          this.options.controller.renameSession(sessionId, title);
+        },
         onInsertSelection: () => getActiveEditorState(this.app).selectedText,
         onOpenSource: (path: string) => {
           void this.app.workspace.openLinkText(path, "", true);
@@ -109,4 +112,20 @@ export class JChatView extends ItemView {
       })
     );
   }
+}
+
+function buildProviderStatus(settings: JChatSettings): { label: string; ready: boolean; detail: string } {
+  if (settings.provider === "codex-sdk") {
+    return {
+      label: "Codex SDK",
+      ready: true,
+      detail: settings.codex.model || "Codex default model"
+    };
+  }
+
+  return {
+    label: settings.provider === "ai-sdk-agent" ? "AI SDK Agent" : "OpenAI API",
+    ready: settings.openai.baseUrl.trim().length > 0 && settings.openai.model.trim().length > 0,
+    detail: `${settings.openai.baseUrl} · ${settings.openai.model}`
+  };
 }
