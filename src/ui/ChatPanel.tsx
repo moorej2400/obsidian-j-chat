@@ -11,7 +11,6 @@ import {
   FileText,
   HelpCircle,
   Highlighter,
-  History,
   Lightbulb,
   Loader2,
   Menu,
@@ -26,6 +25,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   SquarePen,
+  Trash2,
   Wand2,
   Wrench,
   X
@@ -36,7 +36,6 @@ import type { AgentActivityEvent } from "@/providers/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -73,18 +72,30 @@ export type ChatPanelProps = {
   onNewSession: () => void;
   onSelectSession: (sessionId: string) => void;
   onRenameSession: (sessionId: string, title: string) => void;
+  onDeleteSession: (sessionId: string) => void;
   onInsertSelection?: () => string | void | Promise<string | void>;
   onOpenSource?: (path: string) => void;
   onOpenSettings?: () => void;
 };
 
-type PanelPage = "chat" | "history" | "prompts" | "settings";
+type PanelPage = "chat" | "prompts" | "settings";
 
 function pageTitle(page: PanelPage): string {
-  if (page === "history") return "Chat history";
   if (page === "prompts") return "Prompt templates";
   if (page === "settings") return "Control center";
   return "J Chat";
+}
+
+function formatRelativeTime(timestamp: number): string {
+  const deltaMs = Math.max(0, Date.now() - timestamp);
+  const minutes = Math.floor(deltaMs / 60_000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(timestamp).toLocaleDateString();
 }
 
 export function ChatPanel(props: ChatPanelProps): JSX.Element {
@@ -92,7 +103,7 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
   const [draft, setDraft] = React.useState("");
   const [page, setPage] = React.useState<PanelPage>("chat");
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [renameDraft, setRenameDraft] = React.useState("");
+  const shellRef = React.useRef<HTMLElement | null>(null);
   const transcriptRef = React.useRef<HTMLDivElement | null>(null);
   const activeSession = snapshot.sessions.find((session) => session.id === snapshot.activeSessionId) ?? snapshot.sessions[0];
 
@@ -101,10 +112,6 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
     if (!node) return;
     node.scrollTop = node.scrollHeight;
   }, [snapshot.items.length, snapshot.isSending, page]);
-
-  React.useEffect(() => {
-    setRenameDraft(activeSession?.title ?? "");
-  }, [activeSession?.id, activeSession?.title]);
 
   const handleSend = React.useCallback(async () => {
     const trimmed = draft.trim();
@@ -135,12 +142,32 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
     }
   };
 
+  const sessionRailProps = {
+    sessions: snapshot.sessions,
+    activeSessionId: snapshot.activeSessionId,
+    onNewSession: () => {
+      props.onNewSession();
+      setPage("chat");
+      setDrawerOpen(false);
+    },
+    onSelectSession: (sessionId: string) => {
+      props.onSelectSession(sessionId);
+      setPage("chat");
+      setDrawerOpen(false);
+    },
+    onRenameSession: props.onRenameSession,
+    onDeleteSession: props.onDeleteSession
+  };
+
   return (
-    <section className="j-chat-root j-chat-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground">
+    <section
+      ref={shellRef}
+      className="j-chat-root j-chat-shell relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground"
+    >
       <AppTopBar
         page={page}
-        currentSession={activeSession}
         providerStatus={providerStatus}
+        currentSession={page === "chat" ? activeSession : undefined}
         onToggleDrawer={() => setDrawerOpen((open) => !open)}
         onNewSession={() => {
           props.onNewSession();
@@ -154,6 +181,7 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
       <SideDrawer
         open={drawerOpen}
         page={page}
+        sessionRailProps={sessionRailProps}
         onNavigate={(next) => {
           setPage(next);
           setDrawerOpen(false);
@@ -167,24 +195,6 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
           {...props}
           transcriptRef={transcriptRef}
           onInsertSelection={insertSelection}
-        />
-      ) : page === "history" ? (
-        <HistoryPane
-          sessions={snapshot.sessions}
-          activeSessionId={snapshot.activeSessionId}
-          renameDraft={renameDraft}
-          onRenameDraftChange={setRenameDraft}
-          onNewSession={() => {
-            props.onNewSession();
-            setPage("chat");
-          }}
-          onSelectSession={(sessionId) => {
-            props.onSelectSession(sessionId);
-            setPage("chat");
-          }}
-          onRenameSession={() => {
-            props.onRenameSession(snapshot.activeSessionId, renameDraft);
-          }}
         />
       ) : page === "prompts" ? (
         <PromptLibrary
@@ -229,15 +239,15 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
 
 function AppTopBar({
   page,
-  currentSession,
   providerStatus,
+  currentSession,
   onToggleDrawer,
   onNewSession,
   onOpenSettings
 }: {
   page: PanelPage;
-  currentSession?: ChatSessionSummary;
   providerStatus: ProviderStatus;
+  currentSession?: ChatSessionSummary;
   onToggleDrawer: () => void;
   onNewSession: () => void;
   onOpenSettings: () => void;
@@ -251,7 +261,9 @@ function AppTopBar({
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold">{pageTitle(page)}</div>
           <div className="mt-0.5 flex min-w-0 items-center gap-1.5">
-            {currentSession ? <span className="max-w-[9rem] truncate text-[0.6875rem] text-muted-foreground">{currentSession.title}</span> : null}
+            {currentSession ? (
+              <span className="max-w-[9rem] truncate text-[0.6875rem] text-muted-foreground">{currentSession.title}</span>
+            ) : null}
             <ProviderStatusBadge status={providerStatus} />
           </div>
         </div>
@@ -268,15 +280,26 @@ function AppTopBar({
   );
 }
 
+type SessionRailProps = {
+  sessions: ChatSessionSummary[];
+  activeSessionId: string;
+  onNewSession: () => void;
+  onSelectSession: (sessionId: string) => void;
+  onRenameSession: (sessionId: string, title: string) => void;
+  onDeleteSession: (sessionId: string) => void;
+};
+
 function SideDrawer({
   open,
   page,
+  sessionRailProps,
   onNavigate,
   onClose,
   onOpenSettings
 }: {
   open: boolean;
   page: PanelPage;
+  sessionRailProps: SessionRailProps;
   onNavigate: (page: PanelPage) => void;
   onClose: () => void;
   onOpenSettings?: () => void;
@@ -287,25 +310,40 @@ function SideDrawer({
         type="button"
         className={cn("j-chat-drawer-scrim", open && "is-open")}
         aria-label="Close J Chat menu"
+        tabIndex={open ? 0 : -1}
+        aria-hidden={!open}
         onClick={onClose}
       />
-      <aside className={cn("j-chat-drawer", open && "is-open")} aria-hidden={!open}>
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="text-sm font-semibold">Knowledge workspace</div>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              Move between chat, prompt templates, and configuration.
-            </p>
-          </div>
+      <aside
+        className={cn("j-chat-drawer", open && "is-open")}
+        aria-label="Chat sessions and navigation"
+        aria-hidden={!open}
+      >
+        <div className="flex shrink-0 items-center justify-between gap-2 px-1 pb-2">
+          <div className="text-sm font-semibold">Chats</div>
           <Button variant="ghost" size="icon-sm" type="button" onClick={onClose} aria-label="Close menu">
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <nav className="mt-5 flex flex-col gap-1">
+        <div className="shrink-0 pb-2">
+          <Button
+            type="button"
+            size="sm"
+            className="w-full justify-start gap-2"
+            onClick={sessionRailProps.onNewSession}
+            aria-label="New chat"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>New chat</span>
+          </Button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <SessionList {...sessionRailProps} />
+        </div>
+        <nav className="mt-3 flex shrink-0 flex-col gap-1 border-t border-border/70 pt-3">
           <DrawerItem icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
           <DrawerItem icon={<BookMarked />} label="Prompt templates" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
           <DrawerItem icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
-          <DrawerItem icon={<History />} label="Chat history" active={page === "history"} onClick={() => onNavigate("history")} />
           <DrawerItem icon={<HelpCircle />} label="Help and docs" active={false} onClick={() => onOpenSettings?.()} />
         </nav>
       </aside>
@@ -313,65 +351,138 @@ function SideDrawer({
   );
 }
 
-function HistoryPane({
+function SessionList({
   sessions,
   activeSessionId,
-  renameDraft,
-  onRenameDraftChange,
-  onNewSession,
   onSelectSession,
-  onRenameSession
-}: {
-  sessions: ChatSessionSummary[];
-  activeSessionId: string;
-  renameDraft: string;
-  onRenameDraftChange: (value: string) => void;
-  onNewSession: () => void;
-  onSelectSession: (sessionId: string) => void;
-  onRenameSession: () => void;
-}): JSX.Element {
+  onRenameSession,
+  onDeleteSession
+}: SessionRailProps): JSX.Element {
   return (
-    <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-page-viewport">
-      <main className="j-chat-page-stack">
-        <PageIntro title="Chat history" description="Start a fresh thread or jump back into a previous conversation." actionLabel="New chat" onAction={onNewSession} />
-
-        <section className="j-chat-settings-panel">
-          <Label htmlFor="j-chat-session-name" className="text-xs font-medium">Current chat name</Label>
-          <div className="mt-2 flex min-w-0 gap-2">
-            <input
-              id="j-chat-session-name"
-              aria-label="Current chat name"
-              className="j-chat-session-name-input"
-              value={renameDraft}
-              onChange={(event) => onRenameDraftChange(event.target.value)}
-            />
-            <Button type="button" size="sm" onClick={onRenameSession} aria-label="Save chat name">
-              Save
-            </Button>
-          </div>
-        </section>
-
-        <section className="flex flex-col gap-2" aria-label="Chat sessions">
-          {sessions.map((session) => (
-            <button
-              key={session.id}
-              type="button"
-              className={cn("j-chat-session-row", session.id === activeSessionId && "is-active")}
-              onClick={() => onSelectSession(session.id)}
-              aria-current={session.id === activeSessionId ? "true" : undefined}
-            >
-              <span className="min-w-0 flex-1 text-left">
-                <span className="block truncate text-sm font-semibold">{session.title}</span>
-                <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
-                  {session.messageCount} message{session.messageCount === 1 ? "" : "s"}
-                </span>
-              </span>
-              <MessageSquareText className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-            </button>
-          ))}
-        </section>
-      </main>
+    <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-session-rail-scroll">
+      <div className="flex flex-col gap-1.5 pb-3" role="list" aria-label="Chat sessions">
+        {sessions.map((session) => (
+          <SessionRow
+            key={session.id}
+            session={session}
+            isActive={session.id === activeSessionId}
+            canDelete={sessions.length > 1}
+            onSelect={() => onSelectSession(session.id)}
+            onRename={(title) => onRenameSession(session.id, title)}
+            onDelete={() => onDeleteSession(session.id)}
+          />
+        ))}
+      </div>
     </ScrollArea>
+  );
+}
+
+function SessionRow({
+  session,
+  isActive,
+  canDelete,
+  onSelect,
+  onRename,
+  onDelete
+}: {
+  session: ChatSessionSummary;
+  isActive: boolean;
+  canDelete: boolean;
+  onSelect: () => void;
+  onRename: (title: string) => void;
+  onDelete: () => void;
+}): JSX.Element {
+  const [editing, setEditing] = React.useState(false);
+  const [titleDraft, setTitleDraft] = React.useState(session.title);
+  const committedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    setTitleDraft(session.title);
+    setEditing(false);
+    committedRef.current = false;
+  }, [session.id, session.title]);
+
+  const commitRename = React.useCallback(() => {
+    if (committedRef.current) return;
+    committedRef.current = true;
+    const trimmed = titleDraft.trim();
+    if (trimmed.length > 0 && trimmed !== session.title) onRename(trimmed);
+    else setTitleDraft(session.title);
+    setEditing(false);
+  }, [onRename, session.title, titleDraft]);
+
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!canDelete) return;
+    if (session.messageCount > 0 && !window.confirm(`Delete "${session.title}"? This cannot be undone.`)) return;
+    onDelete();
+  };
+
+  return (
+    <div
+      role="listitem"
+      className={cn("j-chat-session-row group", isActive && "is-active")}
+      aria-current={isActive ? "true" : undefined}
+    >
+      {editing ? (
+        <input
+          className="j-chat-session-name-input"
+          value={titleDraft}
+          aria-label={`Rename ${session.title}`}
+          autoFocus
+          onChange={(event) => setTitleDraft(event.target.value)}
+          onBlur={commitRename}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commitRename();
+            }
+            if (event.key === "Escape") {
+              setTitleDraft(session.title);
+              setEditing(false);
+            }
+          }}
+          onClick={(event) => event.stopPropagation()}
+        />
+      ) : (
+        <button type="button" className="j-chat-session-row-main" onClick={onSelect}>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block truncate text-sm font-semibold">{session.title}</span>
+            <span className="mt-0.5 block truncate text-[0.625rem] text-muted-foreground">
+              {session.messageCount} message{session.messageCount === 1 ? "" : "s"} · {formatRelativeTime(session.updatedAt)}
+            </span>
+          </span>
+        </button>
+      )}
+      <div className="j-chat-session-row-actions">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label={`Rename ${session.title}`}
+          title="Rename chat"
+          onClick={(event) => {
+            event.stopPropagation();
+            committedRef.current = false;
+            setEditing(true);
+          }}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        {canDelete ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Delete ${session.title}`}
+            title="Delete chat"
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -720,7 +831,6 @@ function BottomNav({ page, onNavigate }: { page: PanelPage; onNavigate: (page: P
   return (
     <nav className="j-chat-bottom-nav" aria-label="J Chat navigation">
       <NavButton icon={<MessageSquareText />} label="Chat" active={page === "chat"} onClick={() => onNavigate("chat")} />
-      <NavButton icon={<History />} label="History" active={page === "history"} onClick={() => onNavigate("history")} />
       <NavButton icon={<BookMarked />} label="Prompts" active={page === "prompts"} onClick={() => onNavigate("prompts")} />
       <NavButton icon={<Settings />} label="Settings" active={page === "settings"} onClick={() => onNavigate("settings")} />
     </nav>

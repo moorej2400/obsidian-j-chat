@@ -12,6 +12,7 @@ import type { AttachedFile, ChatItem } from "./chatTypes";
 import {
   addMessageToActiveSession,
   createNewActiveSession,
+  deleteSession,
   normalizeChatHistory,
   renameSession,
   selectSession,
@@ -94,6 +95,13 @@ export class ChatController {
 
   renameSession(sessionId: string, title: string): void {
     this.history = renameSession(this.history, sessionId, title);
+    this.persistHistory();
+    this.emit();
+  }
+
+  deleteSession(sessionId: string): void {
+    this.error = null;
+    this.history = deleteSession(this.history, sessionId);
     this.persistHistory();
     this.emit();
   }

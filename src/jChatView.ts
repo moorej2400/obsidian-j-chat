@@ -104,6 +104,9 @@ export class JChatView extends ItemView {
         onRenameSession: (sessionId: string, title: string) => {
           this.options.controller.renameSession(sessionId, title);
         },
+        onDeleteSession: (sessionId: string) => {
+          this.options.controller.deleteSession(sessionId);
+        },
         onInsertSelection: () => getActiveEditorState(this.app).selectedText,
         onOpenSource: (path: string) => {
           void this.app.workspace.openLinkText(path, "", true);

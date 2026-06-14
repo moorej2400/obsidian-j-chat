@@ -57,6 +57,17 @@ export function selectSession(history: ChatHistoryState, sessionId: string): Cha
   return { ...history, activeSessionId: sessionId };
 }
 
+export function deleteSession(history: ChatHistoryState, sessionId: string): ChatHistoryState {
+  if (history.sessions.length <= 1) return history;
+  if (!history.sessions.some((session) => session.id === sessionId)) return history;
+
+  const sessions = history.sessions.filter((session) => session.id !== sessionId);
+  const activeSessionId =
+    history.activeSessionId === sessionId ? pickActiveSessionId(sessions) : history.activeSessionId;
+
+  return { activeSessionId, sessions };
+}
+
 export function renameSession(history: ChatHistoryState, sessionId: string, title: string, now = Date.now()): ChatHistoryState {
   return updateSession(history, sessionId, (session) => ({
     ...session,
@@ -82,13 +93,15 @@ export function updateActiveSession(
 }
 
 export function summarizeSessions(history: ChatHistoryState): ChatSessionSummary[] {
-  return history.sessions.map((session) => ({
-    id: session.id,
-    title: session.title,
-    messageCount: session.items.length,
-    updatedAt: session.updatedAt,
-    isActive: session.id === history.activeSessionId
-  }));
+  return [...history.sessions]
+    .sort((left, right) => right.updatedAt - left.updatedAt)
+    .map((session) => ({
+      id: session.id,
+      title: session.title,
+      messageCount: session.items.length,
+      updatedAt: session.updatedAt,
+      isActive: session.id === history.activeSessionId
+    }));
 }
 
 export function normalizeChatHistory(raw: unknown): ChatHistoryState {
@@ -155,6 +168,12 @@ function titleFromMessage(content: string): string {
 
 function numberOrNow(value: unknown, fallback = Date.now()): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function pickActiveSessionId(sessions: ChatSession[]): string {
+  const [head] = [...sessions].sort((left, right) => right.updatedAt - left.updatedAt);
+  if (!head) throw new Error("pickActiveSessionId requires at least one session");
+  return head.id;
 }
 
 function createSessionId(): string {

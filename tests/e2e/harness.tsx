@@ -7,6 +7,7 @@ import {
   addMessageToActiveSession,
   createInitialChatHistory,
   createNewActiveSession,
+  deleteSession,
   renameSession,
   selectSession,
   summarizeSessions,
@@ -128,6 +129,7 @@ function Harness() {
       onNewSession={() => setHistory((current) => createNewActiveSession(current))}
       onSelectSession={(sessionId) => setHistory((current) => selectSession(current, sessionId))}
       onRenameSession={(sessionId, title) => setHistory((current) => renameSession(current, sessionId, title))}
+      onDeleteSession={(sessionId) => setHistory((current) => deleteSession(current, sessionId))}
     />
   );
 }

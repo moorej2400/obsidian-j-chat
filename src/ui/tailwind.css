@@ -109,7 +109,7 @@
   }
 
   .j-chat-drawer {
-    @apply absolute inset-y-0 left-0 z-40 w-[min(285px,86%)] -translate-x-full border-r border-border bg-card/95 px-3 py-3 text-card-foreground shadow-2xl transition-transform duration-200;
+    @apply absolute inset-y-0 left-0 z-40 flex w-[min(285px,86%)] -translate-x-full flex-col overflow-hidden border-r border-border bg-card/95 px-3 py-3 text-card-foreground shadow-2xl transition-transform duration-200;
   }
 
   .j-chat-drawer.is-open {
@@ -133,7 +133,11 @@
   }
 
   .j-chat-bottom-nav {
-    @apply relative z-20 grid h-14 shrink-0 grid-cols-4 gap-1 border-t border-border/80 bg-background/95 px-2 py-1.5 shadow-[0_-12px_34px_hsl(var(--background)/0.75)] backdrop-blur;
+    @apply relative z-20 grid h-14 shrink-0 grid-cols-3 gap-1 border-t border-border/80 bg-background/95 px-2 py-1.5 shadow-[0_-12px_34px_hsl(var(--background)/0.75)] backdrop-blur;
+  }
+
+  .j-chat-session-rail-scroll {
+    @apply h-full w-full overflow-x-hidden pt-1;
   }
 
   .j-chat-bottom-nav-button {
@@ -224,11 +228,31 @@
   }
 
   .j-chat-session-row {
-    @apply flex min-h-14 w-full min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-card/80 px-3 py-2 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+    @apply flex min-h-[3.25rem] w-full min-w-0 items-center gap-1 rounded-md border border-border/70 bg-card/80 px-1.5 py-1.5 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-within:ring-1 focus-within:ring-ring;
   }
 
   .j-chat-session-row.is-active {
     @apply border-primary/40 bg-primary/10;
+  }
+
+  .j-chat-session-row-main {
+    @apply flex min-w-0 flex-1 items-center rounded-sm px-1 py-0.5 text-left transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .j-chat-session-row-actions {
+    @apply flex shrink-0 items-center gap-0 opacity-0 transition-opacity duration-150;
+  }
+
+  .j-chat-session-row:hover .j-chat-session-row-actions,
+  .j-chat-session-row:focus-within .j-chat-session-row-actions,
+  .j-chat-session-row.is-active .j-chat-session-row-actions {
+    @apply opacity-100;
+  }
+
+  @media (hover: none) {
+    .j-chat-session-row-actions {
+      @apply opacity-100;
+    }
   }
 
   .j-chat-metric-card {
