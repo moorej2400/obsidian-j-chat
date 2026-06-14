@@ -6,6 +6,7 @@ import {
   Bot,
   BookMarked,
   Brain,
+  ChevronDown,
   CircleDot,
   FileSearch,
   FileText,
@@ -37,7 +38,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -103,6 +103,7 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
   const [draft, setDraft] = React.useState("");
   const [page, setPage] = React.useState<PanelPage>("chat");
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const closeDrawer = React.useCallback(() => setDrawerOpen(false), []);
   const shellRef = React.useRef<HTMLElement | null>(null);
   const transcriptRef = React.useRef<HTMLDivElement | null>(null);
   const activeSession = snapshot.sessions.find((session) => session.id === snapshot.activeSessionId) ?? snapshot.sessions[0];
@@ -186,7 +187,7 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
           setPage(next);
           setDrawerOpen(false);
         }}
-        onClose={() => setDrawerOpen(false)}
+        onClose={closeDrawer}
         onOpenSettings={props.onOpenSettings}
       />
 
@@ -197,19 +198,11 @@ export function ChatPanel(props: ChatPanelProps): JSX.Element {
           onInsertSelection={insertSelection}
         />
       ) : page === "prompts" ? (
-        <PromptLibrary
-          hasSelection={props.hasSelection}
-          currentFile={props.currentFile}
-          onUseTemplate={useTemplate}
-          onOpenSettings={props.onOpenSettings}
-        />
+        <PromptLibrary onUseTemplate={useTemplate} />
       ) : (
         <SettingsHub
           providerStatus={providerStatus}
-          snapshot={snapshot}
-          currentFile={props.currentFile}
-          hasSelection={props.hasSelection}
-          selectedText={props.selectedText}
+          restrictToCurrentFile={snapshot.restrictToCurrentFile}
           onOpenSettings={props.onOpenSettings}
           onToggleRestrictToCurrentFile={props.onToggleRestrictToCurrentFile}
         />
@@ -304,6 +297,30 @@ function SideDrawer({
   onClose: () => void;
   onOpenSettings?: () => void;
 }): JSX.Element {
+  const drawerRef = React.useRef<HTMLElement | null>(null);
+  const restoreFocusRef = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    restoreFocusRef.current = (document.activeElement as HTMLElement | null) ?? null;
+    const focusTarget = drawerRef.current?.querySelector<HTMLElement>(
+      "button:not([tabindex='-1']), [href], input, [tabindex]:not([tabindex='-1'])"
+    );
+    focusTarget?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown, true);
+      restoreFocusRef.current?.focus?.();
+    };
+  }, [open, onClose]);
+
   return (
     <>
       <button
@@ -315,6 +332,7 @@ function SideDrawer({
         onClick={onClose}
       />
       <aside
+        ref={drawerRef}
         className={cn("j-chat-drawer", open && "is-open")}
         aria-label="Chat sessions and navigation"
         aria-hidden={!open}
@@ -514,7 +532,7 @@ function ChatWorkspace(
   const { snapshot } = props;
   return (
     <>
-      <ContextCockpit
+      <ContextBar
         currentFile={props.currentFile}
         restrictToCurrentFile={snapshot.restrictToCurrentFile}
         hasSelection={props.hasSelection}
@@ -522,8 +540,6 @@ function ChatWorkspace(
         attachmentCount={snapshot.attachments.length}
         onToggleRestrictToCurrentFile={props.onToggleRestrictToCurrentFile}
       />
-
-      <Separator />
 
       <ScrollArea className="min-h-0 flex-1" viewportClassName="px-3 py-3">
         <div ref={props.transcriptRef} className="flex flex-col gap-3">
@@ -592,40 +608,56 @@ function activityStatusLabel(status: AgentActivityEvent["status"]): string {
   return "Running";
 }
 
+const PROMPT_TEMPLATES = [
+  {
+    icon: <Highlighter />,
+    title: "Summarize selection",
+    description: "Distill highlighted text into decisions, action items, and open questions.",
+    tags: ["Productivity", "Text"],
+    prompt: "Summarize the selected text. Extract key points, decisions, action items, and unresolved questions."
+  },
+  {
+    icon: <FileSearch />,
+    title: "Find related notes",
+    description: "Ask J Chat to connect this note with nearby vault context.",
+    tags: ["Knowledge", "Context"],
+    prompt: "Find related notes and explain why they matter for the current file."
+  },
+  {
+    icon: <Lightbulb />,
+    title: "Explain concept",
+    description: "Turn dense material into a clear explanation with examples.",
+    tags: ["Learning", "Clarify"],
+    prompt: "Explain the main concept in this note in plain language, then give practical examples."
+  },
+  {
+    icon: <Pencil />,
+    title: "Improve writing",
+    description: "Tighten prose for clarity and flow without changing meaning.",
+    tags: ["Editing", "Text"],
+    prompt: "Rewrite this note for clarity and flow. Keep the meaning, fix awkward phrasing, and tighten wordy sentences."
+  },
+  {
+    icon: <Wand2 />,
+    title: "Action items",
+    description: "Pull every task and next step out of the note into a checklist.",
+    tags: ["Productivity", "Tasks"],
+    prompt: "Extract every task, commitment, and next step from this note as a checklist grouped by owner where possible."
+  }
+] as const;
+
 function PromptLibrary({
-  hasSelection,
-  currentFile,
-  onUseTemplate,
-  onOpenSettings
+  onUseTemplate
 }: {
-  hasSelection: boolean;
-  currentFile: { path: string; basename: string } | null;
   onUseTemplate: (prompt: string) => void;
-  onOpenSettings?: () => void;
 }): JSX.Element {
-  const templates = [
-    {
-      icon: <Highlighter />,
-      title: "Summarize selection",
-      description: "Distill highlighted text into decisions, action items, and open questions.",
-      tags: ["Productivity", "Text"],
-      prompt: "Summarize the selected text. Extract key points, decisions, action items, and unresolved questions."
-    },
-    {
-      icon: <FileSearch />,
-      title: "Find related notes",
-      description: "Ask J Chat to connect this note with nearby vault context.",
-      tags: ["Knowledge", "Context"],
-      prompt: "Find related notes and explain why they matter for the current file."
-    },
-    {
-      icon: <Lightbulb />,
-      title: "Explain concept",
-      description: "Turn dense material into a clear explanation with examples.",
-      tags: ["Learning", "Clarify"],
-      prompt: "Explain the main concept in this note in plain language, then give practical examples."
-    }
-  ];
+  const [query, setQuery] = React.useState("");
+  const normalized = query.trim().toLowerCase();
+  const templates = normalized
+    ? PROMPT_TEMPLATES.filter((template) =>
+        [template.title, template.description, ...template.tags].join(" ").toLowerCase().includes(normalized)
+      )
+    : PROMPT_TEMPLATES;
 
   return (
     <ScrollArea className="min-h-0 flex-1" viewportClassName="j-chat-page-viewport">
@@ -633,39 +665,44 @@ function PromptLibrary({
         <PageIntro
           title="Prompt templates"
           description="Reusable instructions for the current note, selected text, and vault context."
-          actionLabel="Create template"
-          onAction={() => onUseTemplate("Create a reusable prompt template for the workflow in this note.")}
+          actionLabel="Blank template"
+          onAction={() => onUseTemplate("")}
         />
 
         <div className="j-chat-search-shell">
-          <Search className="h-4 w-4 text-muted-foreground" aria-hidden />
-          <span className="truncate text-sm text-muted-foreground">Search templates...</span>
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          <input
+            type="text"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search templates..."
+            aria-label="Search prompt templates"
+            className="min-w-0 flex-1 border-0 bg-transparent py-2.5 text-sm outline-none placeholder:text-muted-foreground"
+          />
+          {query ? (
+            <button
+              type="button"
+              className="j-chat-chip-remove h-5 w-5"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
 
-        <div className="flex flex-col gap-3">
-          {templates.map((template) => (
-            <TemplateCard key={template.title} {...template} onUse={() => onUseTemplate(template.prompt)} />
-          ))}
-        </div>
-
-        <section className="j-chat-smart-panel">
-          <div className="relative z-10">
-            <Brain className="h-5 w-5" aria-hidden />
-            <h3 className="mt-3 text-lg font-semibold">Smart composer</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Build prompts from the active note, current selection, attached files, and vault retrieval mode.
-            </p>
-            <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={onOpenSettings}>
-              <Settings className="h-3.5 w-3.5" />
-              Settings
-            </Button>
+        {templates.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {templates.map((template) => (
+              <TemplateCard key={template.title} {...template} onUse={() => onUseTemplate(template.prompt)} />
+            ))}
           </div>
-        </section>
-
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard icon={<Wand2 />} title="Selection" value={hasSelection ? "Ready" : "None"} />
-          <MetricCard icon={<FileText />} title="Active note" value={currentFile?.basename ?? "No note"} />
-        </div>
+        ) : (
+          <div className="j-chat-empty min-h-[140px]">
+            <Search className="h-5 w-5 text-muted-foreground" aria-hidden />
+            <p className="text-xs text-muted-foreground">No templates match “{query}”.</p>
+          </div>
+        )}
       </main>
     </ScrollArea>
   );
@@ -681,7 +718,7 @@ function TemplateCard({
   icon: React.ReactNode;
   title: string;
   description: string;
-  tags: string[];
+  tags: readonly string[];
   onUse: () => void;
 }): JSX.Element {
   return (
@@ -702,18 +739,12 @@ function TemplateCard({
 
 function SettingsHub({
   providerStatus,
-  snapshot,
-  currentFile,
-  hasSelection,
-  selectedText,
+  restrictToCurrentFile,
   onOpenSettings,
   onToggleRestrictToCurrentFile
 }: {
   providerStatus: ProviderStatus;
-  snapshot: ChatPanelSnapshot;
-  currentFile: { path: string; basename: string } | null;
-  hasSelection: boolean;
-  selectedText?: string;
+  restrictToCurrentFile: boolean;
   onOpenSettings?: () => void;
   onToggleRestrictToCurrentFile: (value: boolean) => void;
 }): JSX.Element {
@@ -727,11 +758,22 @@ function SettingsHub({
           onAction={onOpenSettings}
         />
 
-        <section className="j-chat-settings-grid">
-          <StatusBlock icon={<CircleDot />} label="Provider" value={providerStatus.label} detail={providerStatus.detail} />
-          <StatusBlock icon={<FileText />} label="Active note" value={currentFile?.basename ?? "No active note"} />
-          <StatusBlock icon={<Highlighter />} label="Selection" value={hasSelection ? `${selectedText?.trim().length ?? 0} chars` : "None"} />
-          <StatusBlock icon={<Paperclip />} label="Attachments" value={`${snapshot.attachments.length} files`} />
+        <section className="j-chat-settings-panel">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className={cn("mt-0.5 shrink-0", providerStatus.ready ? "text-primary" : "text-muted-foreground")} aria-hidden>
+              <CircleDot className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="j-chat-kicker">Provider</div>
+              <div className="truncate text-sm font-semibold">{providerStatus.label}</div>
+              {providerStatus.detail ? (
+                <div className="mt-1 break-words text-[0.6875rem] text-muted-foreground">{providerStatus.detail}</div>
+              ) : null}
+            </div>
+            <Badge variant={providerStatus.ready ? "success" : "muted"} className="shrink-0">
+              {providerStatus.ready ? "Ready" : "Setup"}
+            </Badge>
+          </div>
         </section>
 
         <section className="j-chat-settings-panel">
@@ -740,11 +782,13 @@ function SettingsHub({
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold">Context scope</div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Toggle whether responses stay inside the active file or include vault retrieval.
+                {restrictToCurrentFile
+                  ? "Responses stay inside the active file."
+                  : "Vault retrieval can pull in related notes."}
               </p>
             </div>
             <Switch
-              checked={snapshot.restrictToCurrentFile}
+              checked={restrictToCurrentFile}
               onCheckedChange={(checked) => onToggleRestrictToCurrentFile(Boolean(checked))}
               aria-label="Restrict context to current file"
             />
@@ -753,11 +797,11 @@ function SettingsHub({
 
         <section className="j-chat-settings-panel">
           <div className="flex items-center justify-between gap-3">
-            <div>
+            <div className="min-w-0">
               <div className="text-sm font-semibold">Advanced configuration</div>
               <p className="mt-1 text-xs text-muted-foreground">API keys, endpoint URLs, Codex SDK options, and edit behavior.</p>
             </div>
-            <Button type="button" size="sm" onClick={onOpenSettings}>
+            <Button type="button" size="sm" className="shrink-0" onClick={onOpenSettings}>
               Open
             </Button>
           </div>
@@ -791,39 +835,6 @@ function PageIntro({
         </Button>
       ) : null}
     </header>
-  );
-}
-
-function StatusBlock({
-  icon,
-  label,
-  value,
-  detail
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  detail?: string;
-}): JSX.Element {
-  return (
-    <div className="j-chat-status-block">
-      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
-      <div className="min-w-0">
-        <div className="j-chat-kicker">{label}</div>
-        <div className="truncate text-sm font-semibold">{value}</div>
-        {detail ? <div className="mt-1 truncate text-[0.6875rem] text-muted-foreground">{detail}</div> : null}
-      </div>
-    </div>
-  );
-}
-
-function MetricCard({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }): JSX.Element {
-  return (
-    <div className="j-chat-metric-card">
-      <span className="j-chat-nav-icon" aria-hidden>{icon}</span>
-      <div className="mt-2 text-xs text-muted-foreground">{title}</div>
-      <div className="mt-1 truncate text-sm font-semibold">{value}</div>
-    </div>
   );
 }
 
@@ -872,7 +883,7 @@ function ProviderStatusBadge({ status }: { status: ProviderStatus }): JSX.Elemen
   );
 }
 
-type ContextCockpitProps = {
+type ContextBarProps = {
   currentFile: { path: string; basename: string } | null;
   restrictToCurrentFile: boolean;
   hasSelection: boolean;
@@ -881,81 +892,103 @@ type ContextCockpitProps = {
   onToggleRestrictToCurrentFile: (value: boolean) => void;
 };
 
-function ContextCockpit({
+function ContextBar({
   currentFile,
   restrictToCurrentFile,
   hasSelection,
   selectedText,
   attachmentCount,
   onToggleRestrictToCurrentFile
-}: ContextCockpitProps): JSX.Element {
+}: ContextBarProps): JSX.Element {
+  const [expanded, setExpanded] = React.useState(false);
   const trimmedSelection = selectedText?.trim() ?? "";
+  const detailId = React.useId();
+
   return (
-    <div className="relative z-10 px-3 pb-3 pt-3">
-      <div className="j-chat-context-grid grid grid-cols-2 gap-1.5">
-        <ContextTile
-          icon={<FileText className="h-3.5 w-3.5" />}
-          label="Active note"
-          value={currentFile ? currentFile.basename : "No active note"}
-          title={currentFile?.path}
-          className="col-span-2"
-        />
-        <div className="j-chat-context-tile col-span-2">
-          <div className="flex min-w-0 items-start gap-2">
-            <RadioTower className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <div className="j-chat-kicker">Scope</div>
-              <div className="truncate text-xs font-medium">
-                {restrictToCurrentFile ? "Current file only" : "Vault retrieval enabled"}
-              </div>
-            </div>
-            <Switch
-              checked={restrictToCurrentFile}
-              onCheckedChange={(checked) => onToggleRestrictToCurrentFile(Boolean(checked))}
-              aria-label="Restrict context to current file"
-            />
-          </div>
-        </div>
-        <ContextTile
-          icon={<Highlighter className="h-3.5 w-3.5" />}
-          label="Selection"
-          value={hasSelection ? `${trimmedSelection.length} chars selected` : "None"}
-          title={trimmedSelection}
-        />
-        <ContextTile
-          icon={<Paperclip className="h-3.5 w-3.5" />}
-          label="Attached"
-          value={`${attachmentCount} file${attachmentCount === 1 ? "" : "s"}`}
-        />
+    <div className="relative z-10 px-3 pt-2.5">
+      <div className="j-chat-context-bar">
+        <button
+          type="button"
+          className="j-chat-context-bar-trigger"
+          onClick={() => setExpanded((open) => !open)}
+          aria-expanded={expanded}
+          aria-controls={detailId}
+          title={currentFile?.path ?? "No active note"}
+        >
+          <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
+          <span className="min-w-0 flex-1 truncate text-left text-xs font-medium">
+            {currentFile ? currentFile.basename : "No active note"}
+          </span>
+          {hasSelection ? (
+            <span className="j-chat-context-pill" title={`${trimmedSelection.length} characters selected`}>
+              <Highlighter className="h-3 w-3" aria-hidden />
+              {trimmedSelection.length}
+            </span>
+          ) : null}
+          {attachmentCount > 0 ? (
+            <span className="j-chat-context-pill" title={`${attachmentCount} attached file${attachmentCount === 1 ? "" : "s"}`}>
+              <Paperclip className="h-3 w-3" aria-hidden />
+              {attachmentCount}
+            </span>
+          ) : null}
+          <ChevronDown
+            className={cn("h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200", expanded && "rotate-180")}
+            aria-hidden
+          />
+        </button>
+        <span className="j-chat-context-divider" aria-hidden />
+        <label className="j-chat-context-scope" title="Restrict responses to the current file">
+          <RadioTower className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden />
+          <Switch
+            checked={restrictToCurrentFile}
+            onCheckedChange={(checked) => onToggleRestrictToCurrentFile(Boolean(checked))}
+            aria-label="Restrict context to current file"
+          />
+        </label>
       </div>
+
+      {expanded ? (
+        <div id={detailId} className="j-chat-context-detail">
+          <ContextDetailRow
+            icon={<RadioTower className="h-3.5 w-3.5" />}
+            label="Scope"
+            value={restrictToCurrentFile ? "Current file only" : "Vault retrieval enabled"}
+          />
+          <ContextDetailRow
+            icon={<Highlighter className="h-3.5 w-3.5" />}
+            label="Selection"
+            value={hasSelection ? `${trimmedSelection.length} chars selected` : "None"}
+            title={trimmedSelection || undefined}
+          />
+          <ContextDetailRow
+            icon={<Paperclip className="h-3.5 w-3.5" />}
+            label="Attached"
+            value={`${attachmentCount} file${attachmentCount === 1 ? "" : "s"}`}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function ContextTile({
+function ContextDetailRow({
   icon,
   label,
   value,
-  title,
-  className
+  title
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   title?: string;
-  className?: string;
 }): JSX.Element {
   return (
-    <div className={cn("j-chat-context-tile", className)} title={title}>
-      <div className="flex min-w-0 items-start gap-2">
-        <span className="mt-0.5 shrink-0 text-muted-foreground" aria-hidden>
-          {icon}
-        </span>
-        <div className="min-w-0">
-          <div className="j-chat-kicker">{label}</div>
-          <div className="truncate text-xs font-medium">{value}</div>
-        </div>
-      </div>
+    <div className="j-chat-context-detail-row" title={title}>
+      <span className="shrink-0 text-muted-foreground" aria-hidden>
+        {icon}
+      </span>
+      <span className="j-chat-kicker mb-0 shrink-0">{label}</span>
+      <span className="min-w-0 flex-1 truncate text-right text-xs font-medium">{value}</span>
     </div>
   );
 }

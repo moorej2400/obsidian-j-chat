@@ -199,26 +199,6 @@
     @apply inline-flex min-w-0 rounded-sm border border-border/60 bg-background/80 px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground;
   }
 
-  .j-chat-smart-panel {
-    @apply relative overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 text-card-foreground shadow-sm;
-  }
-
-  .j-chat-smart-panel::after {
-    content: "";
-    @apply pointer-events-none absolute inset-y-0 right-0 w-1/2 opacity-10;
-    background-image:
-      linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.2)),
-      repeating-linear-gradient(135deg, hsl(var(--foreground) / 0.18) 0 1px, transparent 1px 11px);
-  }
-
-  .j-chat-settings-grid {
-    @apply grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-2;
-  }
-
-  .j-chat-status-block {
-    @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
-  }
-
   .j-chat-settings-panel {
     @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
   }
@@ -228,11 +208,16 @@
   }
 
   .j-chat-session-row {
-    @apply flex min-h-[3.25rem] w-full min-w-0 items-center gap-1 rounded-md border border-border/70 bg-card/80 px-1.5 py-1.5 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-within:ring-1 focus-within:ring-ring;
+    @apply relative flex min-h-[3.25rem] w-full min-w-0 items-center gap-1 rounded-md border border-border/70 bg-card/80 px-1.5 py-1.5 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-within:ring-1 focus-within:ring-ring;
   }
 
   .j-chat-session-row.is-active {
     @apply border-primary/40 bg-primary/10;
+  }
+
+  .j-chat-session-row.is-active::before {
+    content: "";
+    @apply absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary;
   }
 
   .j-chat-session-row-main {
@@ -255,21 +240,41 @@
     }
   }
 
-  .j-chat-metric-card {
-    @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
-  }
-
   .j-chat-icon-button,
   .j-chat-send-button {
     @apply shadow-sm transition duration-200 hover:-translate-y-0.5 active:translate-y-0;
   }
 
-  .j-chat-context-tile {
-    @apply min-w-0 rounded-md border border-border/70 bg-card/80 px-2.5 py-2 shadow-sm backdrop-blur transition duration-200;
+  .j-chat-context-bar {
+    @apply flex min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-card/70 px-2 py-1 shadow-sm backdrop-blur transition duration-200;
   }
 
-  .j-chat-context-tile:hover {
-    @apply border-border bg-card;
+  .j-chat-context-bar:hover {
+    @apply border-border bg-card/90;
+  }
+
+  .j-chat-context-bar-trigger {
+    @apply flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .j-chat-context-pill {
+    @apply inline-flex shrink-0 items-center gap-1 rounded-full border border-border/60 bg-background/70 px-1.5 py-0.5 text-[0.625rem] font-medium tabular-nums text-muted-foreground;
+  }
+
+  .j-chat-context-divider {
+    @apply h-5 w-px shrink-0 bg-border/70;
+  }
+
+  .j-chat-context-scope {
+    @apply flex shrink-0 cursor-pointer items-center gap-1.5 pr-1;
+  }
+
+  .j-chat-context-detail {
+    @apply mt-1.5 flex flex-col gap-px overflow-hidden rounded-lg border border-border/60 bg-card/60 p-1 shadow-sm;
+  }
+
+  .j-chat-context-detail-row {
+    @apply flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5;
   }
 
   .j-chat-kicker {
@@ -277,7 +282,7 @@
   }
 
   .j-chat-message {
-    @apply flex w-full flex-col gap-1.5;
+    @apply flex w-full flex-col gap-1;
   }
 
   .j-chat-message-user {
@@ -289,19 +294,19 @@
   }
 
   .j-chat-message-meta {
-    @apply flex items-center gap-1.5 px-1 text-[0.6875rem] font-medium text-muted-foreground;
+    @apply flex items-center gap-1.5 px-1 text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground/80;
   }
 
   .j-chat-message-body {
-    @apply max-w-full rounded-lg border border-border/70 bg-card/90 px-3 py-2.5 text-sm text-card-foreground shadow-sm transition duration-200;
+    @apply max-w-full rounded-2xl border border-border/70 bg-card/90 px-3.5 py-2.5 text-sm leading-relaxed text-card-foreground shadow-sm transition duration-200;
   }
 
   .j-chat-message-user .j-chat-message-body {
-    @apply border-primary/30 bg-primary text-primary-foreground;
+    @apply max-w-[88%] rounded-br-md border-primary/30 bg-primary text-primary-foreground;
   }
 
   .j-chat-message-assistant .j-chat-message-body {
-    @apply w-full;
+    @apply w-full rounded-bl-md bg-card/70;
   }
 
   .j-chat-message-error {
