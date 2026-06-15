@@ -4,53 +4,118 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5% 64.9%;
+    /* J Chat design tokens — light theme (accent hue 286 / violet) */
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --raised: #faf9f6;
+    --border: #ece9e3;
+    --border2: #e6e3dc;
+    --chip: #f3f1ec;
+    --hover: #f0ede7;
+    --text: #211f1c;
+    --text2: #2a2722;
+    --mid: #6b6660;
+    --faint: #9b958b;
+    --dim: #a8a298;
+    --accent: oklch(0.55 0.17 286);
+    --accent-hover: oklch(0.49 0.17 286);
+    --accent-tint: oklch(0.955 0.028 286);
+    --accent-tint-bd: oklch(0.89 0.055 286);
+    --accent-text: oklch(0.47 0.15 286);
+    --accent-glow: oklch(0.55 0.17 286 / 0.4);
+    --accent-deep: oklch(0.44 0.17 286);
+    --ok: #3f9e5e;
+    --ok-tint: #eef3ee;
+    --warm-tint: #f6f0ee;
+    --blue-tint: #eef2f6;
+    --del-bg: #fcecec;
+    --del: #a85656;
+    --del-mark: #cc6b6b;
+    --add-bg: #eaf6ee;
+    --add: #3a7a52;
+    --add-mark: #4f9e6a;
+    --err-bg: #fcf0ee;
+    --err-bd: #f1d9d4;
+    --err-title: #9c4636;
+    --err-text: #a86b5e;
+    --err-btn: #c6604f;
+    --err-btn-hover: #b25342;
+    --err-btn-bd: #ecd2cc;
+    --star: #e0a33a;
+    --send-off: #cdcabf;
+    --panel-shadow: rgba(40, 36, 30, 0.5);
+    --ring: rgba(40, 36, 30, 0.07);
+
+    /* shadcn compat (direct values, not HSL-wrapped) */
+    --background: var(--bg);
+    --foreground: var(--text);
+    --card: var(--surface);
+    --card-foreground: var(--text);
+    --primary: var(--accent);
+    --primary-foreground: #ffffff;
+    --secondary: var(--chip);
+    --secondary-foreground: var(--text);
+    --muted: var(--chip);
+    --muted-foreground: var(--mid);
+    --accent-foreground: var(--text);
+    --destructive: var(--err-btn);
+    --destructive-foreground: #ffffff;
+    --input: var(--border2);
     --radius: 0.5rem;
   }
 
   .theme-dark,
   [data-theme="dark"] {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --bg: #1b1a18;
+    --surface: #242220;
+    --raised: #2c2a26;
+    --border: #34322e;
+    --border2: #3c3934;
+    --chip: #2e2c28;
+    --hover: #34322e;
+    --text: #f3efe8;
+    --text2: #e7e2d9;
+    --mid: #b2aca2;
+    --faint: #8a857b;
+    --dim: #6c685f;
+    --accent: oklch(0.66 0.16 286);
+    --accent-hover: oklch(0.71 0.16 286);
+    --accent-tint: oklch(0.34 0.065 286);
+    --accent-tint-bd: oklch(0.44 0.085 286);
+    --accent-text: oklch(0.82 0.10 286);
+    --accent-glow: oklch(0.66 0.16 286 / 0.45);
+    --accent-deep: oklch(0.54 0.16 286);
+    --ok: #5cba7c;
+    --ok-tint: #1d2a20;
+    --warm-tint: #33271d;
+    --blue-tint: #1e2730;
+    --del-bg: #3a2120;
+    --del: #dd8f8f;
+    --del-mark: #e59494;
+    --add-bg: #1d2d22;
+    --add: #7fc79a;
+    --add-mark: #7fc79a;
+    --err-bg: #2f1f1a;
+    --err-bd: #4c302a;
+    --err-title: #e7a28d;
+    --err-text: #cd998c;
+    --err-btn: #c6604f;
+    --err-btn-hover: #d06e5d;
+    --err-btn-bd: #4c302a;
+    --star: #e0a33a;
+    --send-off: #3c3934;
+    --panel-shadow: rgba(0, 0, 0, 0.6);
+    --ring: rgba(255, 255, 255, 0.07);
   }
 }
 
 @layer base {
   .j-chat-root {
-    @apply bg-background text-foreground;
+    background: var(--bg);
+    color: var(--text);
     color-scheme: light dark;
-    font-family: "Geist", "Satoshi", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: "IBM Plex Sans", "Geist", "Satoshi", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
   }
 
@@ -58,441 +123,1503 @@
   .j-chat-root *::before,
   .j-chat-root *::after {
     box-sizing: border-box;
-    border-color: hsl(var(--border));
+  }
+
+  .j-chat-mono {
+    font-family: "IBM Plex Mono", "Geist Mono", ui-monospace, monospace;
+  }
+
+  /* ---- Neutralize Obsidian's global control styling inside the panel ----
+     Obsidian applies element-level defaults to buttons/inputs that leak into
+     the mock's controls:
+       • `button { height: var(--input-height); … }`         (specificity 0,0,1)
+       • `button:not(.clickable-icon) {                        (specificity 0,1,1)
+             background-color: var(--interactive-normal);
+             box-shadow: var(--input-shadow);
+             color: var(--text-color); }`
+       • `input/textarea/select { box-shadow: var(--input-shadow) }`
+
+     The `button` height (0,0,1) and input box-shadow are reset here at element
+     specificity (`:where(.j-chat-root)` = 0,0,1) — they beat Obsidian's own
+     element rules by source order (plugin CSS loads after app.css) while any
+     `.j-chat-*` class still wins.
+
+     The `button:not(.clickable-icon)` rule (0,1,1) is the nasty one: it beats
+     every *single-class* mock button rule (0,1,0), so mock buttons rendered as
+     Obsidian-gray, embossed, wrong-text-color. `background`/`color` are fixed
+     by scoping the mock's own button rules under `.j-chat-root` (0,2,x, see the
+     block just below the component rules); `box-shadow` — which almost no mock
+     button sets — is stripped here for all panel buttons (0,1,1 ties Obsidian
+     and wins by source order; the logo re-asserts its glow at 0,2,0). */
+  :where(.j-chat-root) button {
+    height: auto;
+  }
+  :where(.j-chat-root) :is(input, textarea, select) {
+    box-shadow: none;
+  }
+  .j-chat-root button {
+    box-shadow: none;
   }
 }
 
-@layer components {
+/* ---- Scrollbars ---- */
+.j-chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.j-chat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.j-chat-scroll::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.j-chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+  background-clip: content-box;
+}
+.j-chat-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.j-chat-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.j-chat-thin::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+.j-chat-scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.j-chat-scroll-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.j-chat-scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+
+/* ---- Animations ---- */
+@keyframes j-chat-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+@keyframes j-chat-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes j-chat-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.j-chat-rise {
+  animation: j-chat-rise 0.3s ease;
+}
+.j-chat-blink {
+  animation: j-chat-blink 1.4s ease-in-out infinite;
+}
+.j-chat-spin {
+  animation: j-chat-spin 0.8s linear infinite;
+}
+
+/* ---- View host ---- */
   .j-chat-view-content {
-    @apply h-full w-full overflow-hidden p-0;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .j-chat-view-host {
-    @apply h-full min-h-0 w-full;
-  }
-
-  .j-chat-shell::before {
-    content: "";
-    @apply pointer-events-none absolute inset-0 opacity-80;
-    background:
-      radial-gradient(circle at 18% 0%, hsl(var(--accent) / 0.62), transparent 31%),
-      radial-gradient(circle at 92% 12%, hsl(var(--muted) / 0.54), transparent 34%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background) / 0.95));
-  }
-
-  .j-chat-shell::after {
-    content: "";
-    @apply pointer-events-none absolute inset-0 opacity-[0.055];
-    background-image:
-      linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px),
-      linear-gradient(180deg, hsl(var(--foreground)) 1px, transparent 1px);
-    background-size: 22px 22px;
-    mask-image: linear-gradient(to bottom, black, transparent 68%);
-  }
-
-  .j-chat-mark {
-    @apply inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm;
-  }
-
-  .j-chat-app-bar {
-    @apply relative z-20 flex min-h-14 shrink-0 items-center justify-between gap-3 border-b border-border/80 bg-background/90 px-3 py-2 shadow-sm backdrop-blur;
-  }
-
-  .j-chat-drawer-scrim {
-    @apply pointer-events-none absolute inset-0 z-30 bg-background/70 opacity-0 backdrop-blur-sm transition-opacity duration-200;
-  }
-
-  .j-chat-drawer-scrim.is-open {
-    @apply pointer-events-auto opacity-100;
-  }
-
-  .j-chat-drawer {
-    @apply absolute inset-y-0 left-0 z-40 flex w-[min(285px,86%)] -translate-x-full flex-col overflow-hidden border-r border-border bg-card/95 px-3 py-3 text-card-foreground shadow-2xl transition-transform duration-200;
-  }
-
-  .j-chat-drawer.is-open {
-    @apply translate-x-0;
-  }
-
-  .j-chat-drawer-item {
-    @apply flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm text-muted-foreground transition duration-200 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-  }
-
-  .j-chat-drawer-item.is-active {
-    @apply bg-primary text-primary-foreground shadow-sm hover:bg-primary hover:text-primary-foreground;
-  }
-
-  .j-chat-nav-icon {
-    @apply inline-flex h-5 w-5 shrink-0 items-center justify-center;
-  }
-
-  .j-chat-nav-icon svg {
-    @apply h-4 w-4;
-  }
-
-  .j-chat-bottom-nav {
-    @apply relative z-20 grid h-14 shrink-0 grid-cols-3 gap-1 border-t border-border/80 bg-background/95 px-2 py-1.5 shadow-[0_-12px_34px_hsl(var(--background)/0.75)] backdrop-blur;
-  }
-
-  .j-chat-session-rail-scroll {
-    @apply h-full w-full overflow-x-hidden pt-1;
-  }
-
-  .j-chat-bottom-nav-button {
-    @apply flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-md border border-transparent text-[0.6875rem] font-medium text-muted-foreground transition duration-200 hover:border-border/70 hover:bg-muted/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
     height: 100%;
+    width: 100%;
+    overflow: hidden;
+    padding: 0 !important;
+  }
+  .j-chat-view-host {
+    height: 100%;
+    min-height: 0;
+    width: 100%;
   }
 
-  .j-chat-bottom-nav-button.is-active {
-    @apply border-border/70 bg-muted text-foreground shadow-sm hover:bg-muted hover:text-foreground;
+  /* ---- Shell ---- */
+  .j-chat-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    border: 1px solid var(--ring);
+    border-radius: 16px;
+    box-shadow: 0 24px 70px -18px var(--panel-shadow);
   }
 
-  .j-chat-page-viewport {
-    @apply h-full w-full overflow-x-hidden px-3 pb-5 pt-3;
+  /* ---- Header ---- */
+  .j-chat-header {
+    flex: none;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 0 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .j-chat-root .j-chat-logo {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 7px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    box-shadow: 0 1px 2px var(--accent-glow);
+    cursor: pointer;
+    color: #fff;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .j-chat-header-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-header-meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    color: var(--faint);
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+  }
+  .j-chat-root .j-chat-icon-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--mid);
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-icon-btn:hover {
+    background: var(--hover);
   }
 
-  .j-chat-page-stack {
-    @apply flex min-w-0 max-w-full flex-col gap-3 overflow-hidden;
+  /* ---- Scroll area for screens ---- */
+  .j-chat-screen-scroll {
+    flex: 1;
+    overflow-y: auto;
   }
 
-  .j-chat-page-intro {
-    @apply flex min-w-0 flex-col gap-2 rounded-lg border border-border/60 bg-background/70 p-3 shadow-sm backdrop-blur;
+  /* ---- Sub-page header (back button + title + action) ---- */
+  .j-chat-sub-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 12px 8px;
+  }
+  .j-chat-root .j-chat-back-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--mid);
+    flex: none;
+    margin-left: -4px;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-back-btn:hover {
+    background: var(--hover);
+  }
+  .j-chat-sub-title {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
   }
 
-  .j-chat-page-intro h2 {
-    @apply break-words text-base;
-    text-wrap: balance;
+  /* ---- Section label ---- */
+  .j-chat-section-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 9.5px;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    padding: 16px 2px 8px;
+  }
+  .j-chat-section-label:first-child,
+  .j-chat-section-label:first-of-type {
+    padding-top: 6px;
   }
 
-  .j-chat-page-intro p {
-    @apply break-words text-xs;
-    text-wrap: pretty;
+  /* ---- Card (grouped settings rows) ---- */
+  .j-chat-card {
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .j-chat-card-row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px;
+    border-bottom: 1px solid var(--chip);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .j-chat-card-row:last-child {
+    border-bottom: none;
+  }
+  .j-chat-card-row:hover {
+    background: var(--raised);
+  }
+  .j-chat-card-row-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex: none;
+  }
+  .j-chat-card-row-label {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .j-chat-card-row-value {
+    font-size: 12px;
+    color: var(--faint);
   }
 
-  .j-chat-page-action {
-    @apply w-full justify-start overflow-hidden text-left;
+  /* ---- Toggle (pill switch) ---- */
+  .j-chat-root .j-chat-toggle {
+    width: 40px;
+    height: 23px;
+    border: none;
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.18s;
+    flex: none;
+  }
+  .j-chat-toggle-knob {
+    position: absolute;
+    top: 2px;
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transition: left 0.18s;
   }
 
-  .j-chat-search-shell {
-    @apply flex min-h-10 min-w-0 max-w-full items-center gap-2 overflow-hidden rounded-lg border border-input bg-card/80 px-3 shadow-sm transition duration-200 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring;
+  /* ---- Input ---- */
+  .j-chat-input {
+    width: 100%;
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--text2);
+    outline: none;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .j-chat-input:focus {
+    border-color: var(--accent-tint-bd);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .j-chat-input-mono {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+  }
+  .j-chat-input-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .j-chat-label {
+    display: block;
+    font-size: 11px;
+    color: var(--faint);
+    margin: 0 2px 5px;
   }
 
-  .j-chat-template-card {
-    @apply grid w-full min-w-0 max-w-full grid-cols-[2rem_minmax(0,1fr)] items-start gap-2.5 overflow-hidden rounded-lg border border-border/70 bg-card/80 p-2.5 text-card-foreground shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-border hover:bg-card hover:shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-    min-height: 6rem;
-    height: auto;
-    text-align: left;
-    white-space: normal;
-  }
-
-  .j-chat-template-card > span {
-    white-space: normal;
-  }
-
-  .j-chat-template-icon {
-    @apply inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted text-muted-foreground transition duration-200 group-hover:bg-background group-hover:text-foreground;
-  }
-
-  .j-chat-template-tag {
-    @apply inline-flex min-w-0 rounded-sm border border-border/60 bg-background/80 px-1.5 py-0.5 text-[0.625rem] font-medium text-muted-foreground;
-  }
-
-  .j-chat-settings-panel {
-    @apply min-w-0 overflow-hidden rounded-lg border border-border/70 bg-card/90 p-3 shadow-sm;
-  }
-
-  .j-chat-session-name-input {
-    @apply min-h-9 min-w-0 flex-1 rounded-md border border-input bg-background px-2.5 text-sm shadow-sm transition focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-  }
-
-  .j-chat-session-row {
-    @apply relative flex min-h-[3.25rem] w-full min-w-0 items-center gap-1 rounded-md border border-border/70 bg-card/80 px-1.5 py-1.5 text-card-foreground shadow-sm transition duration-200 hover:border-border hover:bg-card focus-within:ring-1 focus-within:ring-ring;
-  }
-
-  .j-chat-session-row.is-active {
-    @apply border-primary/40 bg-primary/10;
-  }
-
-  .j-chat-session-row.is-active::before {
-    content: "";
-    @apply absolute inset-y-2 left-0 w-0.5 rounded-full bg-primary;
-  }
-
-  .j-chat-session-row-main {
-    @apply flex min-w-0 flex-1 items-center rounded-sm px-1 py-0.5 text-left transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-  }
-
-  .j-chat-session-row-actions {
-    @apply flex shrink-0 items-center gap-0 opacity-0 transition-opacity duration-150;
-  }
-
-  .j-chat-session-row:hover .j-chat-session-row-actions,
-  .j-chat-session-row:focus-within .j-chat-session-row-actions,
-  .j-chat-session-row.is-active .j-chat-session-row-actions {
-    @apply opacity-100;
-  }
-
-  @media (hover: none) {
-    .j-chat-session-row-actions {
-      @apply opacity-100;
-    }
-  }
-
-  .j-chat-icon-button,
-  .j-chat-send-button {
-    @apply shadow-sm transition duration-200 hover:-translate-y-0.5 active:translate-y-0;
-  }
-
-  .j-chat-context-bar {
-    @apply flex min-w-0 items-center gap-2 rounded-lg border border-border/70 bg-card/70 px-2 py-1 shadow-sm backdrop-blur transition duration-200;
-  }
-
-  .j-chat-context-bar:hover {
-    @apply border-border bg-card/90;
-  }
-
-  .j-chat-context-bar-trigger {
-    @apply flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left transition hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-  }
-
-  .j-chat-context-pill {
-    @apply inline-flex shrink-0 items-center gap-1 rounded-full border border-border/60 bg-background/70 px-1.5 py-0.5 text-[0.625rem] font-medium tabular-nums text-muted-foreground;
-  }
-
-  .j-chat-context-divider {
-    @apply h-5 w-px shrink-0 bg-border/70;
-  }
-
-  .j-chat-context-scope {
-    @apply flex shrink-0 cursor-pointer items-center gap-1.5 pr-1;
-  }
-
-  .j-chat-context-detail {
-    @apply mt-1.5 flex flex-col gap-px overflow-hidden rounded-lg border border-border/60 bg-card/60 p-1 shadow-sm;
-  }
-
-  .j-chat-context-detail-row {
-    @apply flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5;
-  }
-
-  .j-chat-kicker {
-    @apply mb-0.5 text-[0.625rem] font-medium uppercase leading-none tracking-wide text-muted-foreground;
-  }
-
-  .j-chat-message {
-    @apply flex w-full flex-col gap-1;
-  }
-
-  .j-chat-message-user {
-    @apply items-end;
-  }
-
-  .j-chat-message-assistant {
-    @apply items-start;
-  }
-
-  .j-chat-message-meta {
-    @apply flex items-center gap-1.5 px-1 text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground/80;
-  }
-
-  .j-chat-message-body {
-    @apply max-w-full rounded-2xl border border-border/70 bg-card/90 px-3.5 py-2.5 text-sm leading-relaxed text-card-foreground shadow-sm transition duration-200;
-  }
-
-  .j-chat-message-user .j-chat-message-body {
-    @apply max-w-[88%] rounded-br-md border-primary/30 bg-primary text-primary-foreground;
-  }
-
-  .j-chat-message-assistant .j-chat-message-body {
-    @apply w-full rounded-bl-md bg-card/70;
-  }
-
-  .j-chat-message-error {
-    @apply border-destructive/50 bg-destructive/10 text-destructive;
-  }
-
-  .j-chat-message:hover .j-chat-message-body {
-    @apply border-border shadow;
-  }
-
-  .j-chat-edit-notice {
-    @apply mt-2 flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/45 px-2 py-1 text-[0.6875rem] text-muted-foreground;
-  }
-
-  .j-chat-source-chip {
-    @apply inline-flex max-w-full items-center gap-1 rounded-md border border-border/70 bg-background/70 px-1.5 py-0.5 text-[0.6875rem] text-muted-foreground transition duration-200 hover:-translate-y-0.5 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
-  }
-
-  .j-chat-source-label {
-    @apply text-[0.625rem] font-medium uppercase tracking-wide opacity-70;
-  }
-
-  .j-chat-thinking {
-    @apply flex items-center gap-2 self-start rounded-md border border-border/70 bg-card/80 px-3 py-2 text-xs text-muted-foreground shadow-sm;
-  }
-
-  .j-chat-agent-activity {
-    @apply w-full rounded-lg border border-border/70 bg-card/80 p-2 shadow-sm backdrop-blur;
-  }
-
-  .j-chat-agent-activity-row {
-    @apply flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-border/60 bg-background/70 px-2.5 py-2 text-card-foreground shadow-sm transition duration-300;
-  }
-
-  .j-chat-agent-activity-row.is-error {
-    @apply border-destructive/40 bg-destructive/10 text-destructive;
-  }
-
-  .j-chat-agent-activity-icon {
-    @apply inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border/70 bg-muted text-muted-foreground;
-  }
-
-  .j-chat-agent-activity-status {
-    @apply shrink-0 rounded-sm border border-border/60 bg-card px-1.5 py-0.5 text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground;
-  }
-
-  .j-chat-empty {
-    @apply flex min-h-[220px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card/55 px-4 py-8 text-center shadow-sm;
-  }
-
-  .j-chat-composer {
-    @apply border-t border-border/80 bg-background/90 shadow-[0_-18px_48px_hsl(var(--background)/0.9)] backdrop-blur;
-  }
-
-  .j-chat-input-frame {
-    @apply relative rounded-lg border border-input bg-card shadow-sm transition duration-200 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring;
-  }
-
+  /* ---- Textarea ---- */
   .j-chat-textarea {
-    @apply min-h-[88px] border-0 bg-transparent shadow-none focus-visible:ring-0;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border2);
+    border-radius: 11px;
+    background: var(--surface);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text2);
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
   }
 
-  .j-chat-attachment-chip {
-    @apply inline-flex max-w-full items-center gap-1 rounded-md border border-border/70 bg-muted px-1.5 py-0.5 text-[0.6875rem] text-foreground shadow-sm;
+  /* ---- Range slider ---- */
+  .j-chat-range {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
   }
 
-  .j-chat-chip-remove {
-    @apply ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-sm text-muted-foreground transition hover:bg-background hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  /* ---- Radio card (preview/ask/auto) ---- */
+  .j-chat-root .j-chat-radio-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .j-chat-root .j-chat-radio-card.is-selected {
+    border-color: var(--accent-tint-bd);
+    background: var(--accent-tint);
+  }
+  .j-chat-radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    flex: none;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .j-chat-root .j-chat-radio-card.is-selected .j-chat-radio-dot {
+    border-color: var(--accent);
+  }
+  .j-chat-radio-dot-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
   }
 
-  .j-chat-alert {
-    @apply rounded-md shadow-sm;
+  /* ---- Button (primary) ---- */
+  .j-chat-root .j-chat-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 11px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-btn-primary:hover {
+    background: var(--accent-hover);
+  }
+  .j-chat-root .j-chat-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 11px;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--mid);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-btn-outline:hover {
+    background: var(--hover);
+  }
+  .j-chat-root .j-chat-btn-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 38px;
+    border: none;
+    border-radius: 11px;
+    background: none;
+    color: var(--err-btn);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-btn-danger:hover {
+    background: var(--err-bg);
+  }
+  .j-chat-root .j-chat-btn-accent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--accent-tint-bd);
+    border-radius: 11px;
+    background: var(--accent-tint);
+    color: var(--accent-text);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-btn-dashed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 38px;
+    border: 1px dashed var(--border2);
+    border-radius: 11px;
+    background: none;
+    color: var(--mid);
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .j-chat-root .j-chat-btn-dashed:hover {
+    border-color: var(--dim);
+    color: var(--mid);
   }
 
-  .j-chat-settings-container {
-    @apply flex h-full min-h-0 w-full flex-col overflow-hidden p-0;
+  /* ---- Chat message ---- */
+  .j-chat-msg-user {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+  }
+  .j-chat-msg-user-bubble {
+    max-width: 84%;
+    background: var(--accent-deep);
+    color: #fff;
+    padding: 9px 13px;
+    border-radius: 14px 14px 4px 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .j-chat-msg-assistant {
+    margin-bottom: 6px;
+    animation: j-chat-rise 0.3s ease;
+  }
+  .j-chat-msg-body {
+    font-size: 13.5px;
+    line-height: 1.62;
+    color: var(--text2);
   }
 
-  .j-chat-settings-mount {
-    @apply flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden;
+  /* ---- Thinking pill ---- */
+  .j-chat-root .j-chat-thinking-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 7px;
+    background: var(--raised);
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-thinking-pill.is-open {
+    background: var(--accent-tint);
+  }
+  .j-chat-thinking-text {
+    flex: 1;
+    font-size: 11.5px;
+    color: var(--mid);
+  }
+  .j-chat-thinking-detail {
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--mid);
+    padding: 2px 10px 12px;
+    border-left: 2px solid var(--border2);
+    margin: 0 0 8px 4px;
   }
 
-  .j-chat-settings-shell {
-    @apply flex min-h-0 flex-1 flex-col gap-3 overflow-auto;
+  /* ---- Tool call card ---- */
+  .j-chat-tool-card {
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background: var(--surface);
+  }
+  .j-chat-root .j-chat-tool-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .j-chat-tool-name {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+  .j-chat-tool-detail {
+    font-size: 10.5px;
+    color: var(--faint);
+  }
+  .j-chat-tool-body {
+    border-top: 1px solid var(--hover);
+    padding: 9px 11px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    line-height: 1.6;
+    color: var(--mid);
+    background: var(--raised);
   }
 
-  .j-chat-settings-hero {
-    @apply rounded-lg border border-border/70 bg-card/80 p-4 shadow-sm;
-    background:
-      radial-gradient(circle at 8% 0%, hsl(var(--accent) / 0.5), transparent 33%),
-      linear-gradient(135deg, hsl(var(--card)), hsl(var(--background)));
+  /* ---- Diff card ---- */
+  .j-chat-diff-card {
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    overflow: hidden;
+    margin: 12px 0 4px;
+    box-shadow: 0 1px 3px rgba(40, 36, 30, 0.05);
+  }
+  .j-chat-diff-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 11px;
+    background: var(--raised);
+    border-bottom: 1px solid var(--border);
+  }
+  .j-chat-diff-line {
+    display: flex;
+    padding: 1px 9px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10.5px;
+    line-height: 1.65;
+  }
+  .j-chat-diff-del {
+    background: var(--del-bg);
+  }
+  .j-chat-diff-add {
+    background: var(--add-bg);
+  }
+  .j-chat-diff-mark {
+    color: var(--del-mark);
+    width: 14px;
+    flex: none;
+  }
+  .j-chat-diff-add .j-chat-diff-mark {
+    color: var(--add-mark);
+  }
+  .j-chat-diff-del-text {
+    color: var(--del);
+    text-decoration: line-through;
+  }
+  .j-chat-diff-add-text {
+    color: var(--add);
+  }
+  .j-chat-diff-actions {
+    display: flex;
+    gap: 7px;
+    padding: 9px 11px;
+    border-top: 1px solid var(--hover);
+  }
+  .j-chat-root .j-chat-diff-apply {
+    flex: 1;
+    height: 30px;
+    border: none;
+    border-radius: 7px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-diff-apply:hover {
+    background: var(--accent-hover);
+  }
+  .j-chat-root .j-chat-diff-reject {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--mid);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-diff-reject:hover {
+    background: var(--hover);
   }
 
-  .j-chat-settings-tabs {
-    @apply h-auto flex-wrap justify-start gap-1 rounded-lg border border-border/70 bg-muted/70 p-1.5 shadow-sm;
+  /* ---- Message actions ---- */
+  .j-chat-msg-actions {
+    display: flex;
+    gap: 2px;
+    margin-top: 8px;
+  }
+  .j-chat-root .j-chat-msg-action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--dim);
+    transition: background 0.15s, color 0.15s;
+  }
+  .j-chat-root .j-chat-msg-action-btn:hover {
+    background: var(--hover);
+    color: var(--mid);
+  }
+  .j-chat-root .j-chat-msg-action-wide {
+    height: 28px;
+    padding: 0 9px;
+    gap: 5px;
+    font-size: 11px;
+    font-family: inherit;
+    width: auto;
   }
 
-  .j-chat-settings-tabs [role="tab"] {
-    @apply gap-1.5 rounded-md px-3 py-1.5 transition duration-200;
+  /* ---- Error / retry message ---- */
+  .j-chat-error-card {
+    display: flex;
+    gap: 9px;
+    padding: 11px 12px;
+    background: var(--err-bg);
+    border: 1px solid var(--err-bd);
+    border-radius: 11px;
+  }
+  .j-chat-error-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--err-title);
+    margin-bottom: 2px;
+  }
+  .j-chat-error-text {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--err-text);
+  }
+  .j-chat-root .j-chat-error-retry {
+    height: 27px;
+    padding: 0 11px;
+    border: none;
+    border-radius: 7px;
+    background: var(--err-btn);
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-error-retry:hover {
+    background: var(--err-btn-hover);
+  }
+  .j-chat-root .j-chat-error-switch {
+    height: 27px;
+    padding: 0 11px;
+    border: 1px solid var(--err-btn-bd);
+    border-radius: 7px;
+    background: var(--surface);
+    color: var(--err-title);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
   }
 
-  .j-chat-settings-card {
-    @apply min-h-full rounded-lg border-border/70 bg-card/95 shadow-sm;
+  /* ---- Context banner ---- */
+  .j-chat-context-banner {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    background: var(--chip);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    margin-bottom: 18px;
+  }
+  .j-chat-context-banner-text {
+    font-size: 11px;
+    color: var(--mid);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-context-banner-meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 9.5px;
+    color: var(--faint);
   }
 
-  .j-chat-settings-toggle {
-    @apply flex items-start justify-between gap-3 rounded-md border border-border/70 bg-background/80 px-3 py-3 shadow-sm;
+  /* ---- Context chips ---- */
+  .j-chat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 9px;
+    border: 1px solid var(--accent-tint-bd);
+    border-radius: 7px;
+    font-size: 11px;
+    color: var(--accent-text);
+    font-weight: 500;
+    background: var(--accent-tint);
+  }
+  .j-chat-root .j-chat-chip-dashed {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 9px;
+    background: none;
+    border: 1px dashed var(--border2);
+    border-radius: 7px;
+    font-size: 11px;
+    color: var(--mid);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .j-chat-root .j-chat-chip-dashed:hover {
+    border-color: var(--dim);
+    color: var(--mid);
+  }
+  .j-chat-root .j-chat-chip-remove {
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0.55;
+    color: inherit;
+    padding: 0;
+    display: flex;
+    align-items: center;
   }
 
+  /* ---- Composer ---- */
+  .j-chat-composer {
+    flex: none;
+    position: relative;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    padding: 10px 12px 11px;
+  }
+  .j-chat-composer-input {
+    border: 1px solid var(--border2);
+    border-radius: 13px;
+    background: var(--surface);
+    padding: 9px 10px 7px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .j-chat-composer-input.is-focused {
+    border-color: var(--accent-tint-bd);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  /* Scoped under .j-chat-root (0,2,0) to beat Obsidian's `textarea:focus`
+     (0,1,1), which otherwise draws a focus box-shadow ring on the real
+     textarea. The focus ring belongs to the wrapping .j-chat-composer-input
+     (.is-focused); the inner textarea must stay invisible so the whole box
+     reads as one large field. */
+  .j-chat-root .j-chat-composer-textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    resize: none;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text2);
+    background: none;
+    min-height: 20px;
+    max-height: 120px;
+    font-family: inherit;
+  }
+  .j-chat-composer-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .j-chat-root .j-chat-composer-send {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 9px;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-composer-send:disabled {
+    background: var(--dim);
+    cursor: default;
+  }
+  .j-chat-root .j-chat-composer-attach {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--faint);
+    transition: background 0.15s, color 0.15s;
+  }
+  .j-chat-root .j-chat-composer-attach:hover {
+    background: var(--hover);
+    color: var(--mid);
+  }
+
+  /* ---- Quick settings panel ---- */
+  .j-chat-quick-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .j-chat-root .j-chat-quick-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 9px 11px;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+    height: auto;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+  .j-chat-root .j-chat-quick-row:hover {
+    border-color: var(--accent-tint-bd);
+    background: var(--raised);
+  }
+  .j-chat-quick-row-label {
+    font-size: 8.5px;
+    color: var(--dim);
+    font-family: "IBM Plex Mono", monospace;
+    letter-spacing: 0.09em;
+  }
+  .j-chat-quick-row-value {
+    flex: 1;
+    min-width: 0;
+    font-size: 12.5px;
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-quick-scope {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 11px;
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    background: var(--surface);
+  }
+  .j-chat-root .j-chat-scope-btn {
+    height: 25px;
+    padding: 0 11px;
+    border-radius: 7px;
+    border: 1px solid var(--border2);
+    background: var(--surface);
+    color: var(--mid);
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .j-chat-root .j-chat-scope-btn.is-active {
+    border-color: var(--accent-tint-bd);
+    background: var(--accent-tint);
+    color: var(--accent-text);
+  }
+
+  /* ---- Meta row (model button + usage) ---- */
+  .j-chat-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+  .j-chat-root .j-chat-model-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 24px;
+    padding: 0 8px 0 7px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .j-chat-root .j-chat-model-btn:hover {
+    background: var(--hover);
+  }
+  .j-chat-model-btn-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .j-chat-model-btn-label {
+    font-size: 11px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  /* ---- Usage meter ---- */
+  .j-chat-usage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 24px;
+    cursor: default;
+  }
+  .j-chat-usage-cost {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    color: var(--faint);
+  }
+  .j-chat-usage-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--dim);
+  }
+  .j-chat-usage-bar {
+    display: block;
+    width: 28px;
+    height: 5px;
+    border-radius: 99px;
+    background: var(--chip);
+    overflow: hidden;
+  }
+  .j-chat-usage-bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+  }
+  .j-chat-usage-pop {
+    position: absolute;
+    right: -4px;
+    bottom: calc(100% + 9px);
+    width: 236px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 13px;
+    box-shadow: 0 16px 40px -12px var(--panel-shadow), 0 0 0 1px rgba(40, 36, 30, 0.04);
+    padding: 12px;
+    z-index: 20;
+    animation: j-chat-rise 0.14s ease;
+  }
+
+  /* ---- Slash autosuggest ---- */
+  .j-chat-slash {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px -10px var(--panel-shadow);
+    padding: 5px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .j-chat-slash-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 9.5px;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    padding: 5px 8px 6px;
+  }
+  .j-chat-root .j-chat-slash-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.1s;
+  }
+  .j-chat-root .j-chat-slash-item:hover,
+  .j-chat-root .j-chat-slash-item.is-active {
+    background: var(--raised);
+  }
+  .j-chat-slash-item-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .j-chat-slash-item-desc {
+    font-size: 11px;
+    color: var(--faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-slash-item-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 10px;
+    color: var(--mid);
+    background: var(--chip);
+    padding: 2px 6px;
+    border-radius: 5px;
+    flex: none;
+  }
+
+  /* ---- Sessions screen ---- */
+  .j-chat-sessions-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px 8px;
+  }
+  .j-chat-sessions-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .j-chat-sessions-search {
+    flex: none;
+    padding: 0 14px 10px;
+  }
+  .j-chat-sessions-search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 11px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+  }
+  .j-chat-sessions-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 13px;
+    color: var(--text2);
+    font-family: inherit;
+  }
+  .j-chat-session-item {
+    display: flex;
+    gap: 10px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .j-chat-session-item:hover {
+    border-color: var(--border);
+  }
+  .j-chat-session-item-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 11px;
+    margin-bottom: 3px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .j-chat-session-item-row:hover {
+    background: var(--chip);
+  }
+  .j-chat-session-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-session-item-snippet {
+    font-size: 11.5px;
+    color: var(--faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .j-chat-session-item-meta {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 9.5px;
+    color: var(--faint);
+  }
+  .j-chat-session-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex: none;
+  }
+
+  /* ---- Settings screen ---- */
+  .j-chat-settings-header {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 14px 10px;
+  }
+  .j-chat-settings-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .j-chat-provider-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 11px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--surface);
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .j-chat-provider-item:hover {
+    border-color: var(--accent-tint-bd);
+  }
+  .j-chat-provider-initial {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text2);
+    flex: none;
+  }
+  .j-chat-provider-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .j-chat-provider-detail {
+    font-size: 11px;
+    color: var(--faint);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ---- Onboarding ---- */
+  .j-chat-onboarding {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 22px;
+  }
+  .j-chat-onboarding-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 14px -3px var(--accent-glow);
+    color: #fff;
+    font-family: "IBM Plex Mono", monospace;
+    font-weight: 600;
+    font-size: 24px;
+  }
+  .j-chat-root .j-chat-onboarding-provider {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    margin-bottom: 9px;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .j-chat-root .j-chat-onboarding-provider:hover {
+    border-color: var(--accent-tint-bd);
+    background: var(--raised);
+  }
+  .j-chat-root .j-chat-onboarding-skip {
+    margin-top: 8px;
+    height: 34px;
+    border: none;
+    background: none;
+    color: var(--mid);
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+    align-self: flex-start;
+    transition: color 0.15s;
+  }
+  .j-chat-root .j-chat-onboarding-skip:hover {
+    color: var(--accent);
+  }
+
+  /* ---- Skills ---- */
+  .j-chat-root .j-chat-skill-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 12px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .j-chat-root .j-chat-skill-card:hover {
+    border-color: var(--accent-tint-bd);
+  }
+  .j-chat-root .j-chat-skill-card.is-active {
+    border-color: var(--accent-tint-bd);
+    background: var(--accent-tint);
+  }
+  .j-chat-skill-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .j-chat-skill-card-desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--mid);
+  }
+  .j-chat-skill-tag {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 9.5px;
+    color: var(--mid);
+    background: var(--chip);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  /* ---- Prose (markdown rendering) ---- */
   .j-chat-prose {
-    @apply text-sm leading-relaxed text-foreground;
+    font-size: 13.5px;
+    line-height: 1.62;
+    color: var(--text2);
   }
-
   .j-chat-prose p {
-    @apply my-2 first:mt-0 last:mb-0;
+    margin-bottom: 10px;
   }
-
+  .j-chat-prose p:last-child {
+    margin-bottom: 0;
+  }
   .j-chat-prose strong {
-    @apply font-semibold;
+    font-weight: 600;
+    color: var(--text);
   }
-
   .j-chat-prose em {
-    @apply italic;
+    font-style: italic;
   }
-
   .j-chat-prose a {
-    @apply text-primary underline underline-offset-2 hover:opacity-80;
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
-
   .j-chat-prose ul {
-    @apply my-2 ml-4 flex list-disc flex-col gap-1;
+    margin: 8px 0;
+    padding-left: 20px;
+    list-style: disc;
   }
-
   .j-chat-prose ol {
-    @apply my-2 ml-4 flex list-decimal flex-col gap-1;
+    margin: 8px 0;
+    padding-left: 20px;
+    list-style: decimal;
   }
-
-  .j-chat-prose li > p {
-    @apply my-0;
+  .j-chat-prose li {
+    margin-bottom: 4px;
   }
-
   .j-chat-prose h1 {
-    @apply mt-3 mb-1 text-base font-semibold;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 12px 0 4px;
   }
-
   .j-chat-prose h2 {
-    @apply mt-3 mb-1 text-sm font-semibold;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 10px 0 4px;
   }
-
   .j-chat-prose h3,
   .j-chat-prose h4,
   .j-chat-prose h5,
   .j-chat-prose h6 {
-    @apply mt-2 mb-1 text-sm font-semibold;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 8px 0 3px;
   }
-
   .j-chat-prose blockquote {
-    @apply my-2 border-l-2 border-border pl-3 text-muted-foreground;
+    margin: 8px 0;
+    padding-left: 12px;
+    border-left: 2px solid var(--border2);
+    color: var(--mid);
   }
-
-  .j-chat-prose hr {
-    @apply my-3 border-border;
-  }
-
   .j-chat-prose code {
-    @apply rounded bg-muted px-1 py-0.5 font-mono text-[0.8125rem];
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    background: var(--chip);
+    padding: 1px 5px;
+    border-radius: 4px;
   }
-
   .j-chat-prose pre {
-    @apply my-2 overflow-x-auto rounded-md border bg-muted/80 p-3 font-mono text-xs leading-relaxed;
+    margin: 8px 0;
+    padding: 10px;
+    background: var(--raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    line-height: 1.5;
   }
-
   .j-chat-prose pre code {
-    @apply bg-transparent p-0 text-xs;
+    background: none;
+    padding: 0;
   }
 
-  .j-chat-prose table {
-    @apply my-2 w-full border-collapse overflow-hidden rounded-md text-xs;
+  /* ---- Obsidian settings tab ---- */
+  .j-chat-settings-container {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+  }
+  .j-chat-settings-mount {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    width: 100%;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
   }
 
-  .j-chat-prose th,
-  .j-chat-prose td {
-    @apply border border-border px-2 py-1 text-left align-top;
+  /* ---- Empty state ---- */
+  .j-chat-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    gap: 12px;
+    text-align: center;
+    padding: 32px 16px;
   }
-
-  .j-chat-prose th {
-    @apply bg-muted font-semibold;
+  .j-chat-empty-state-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
   }
-}
+  .j-chat-empty-state-desc {
+    max-width: 28ch;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--faint);
+  }

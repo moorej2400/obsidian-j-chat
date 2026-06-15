@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .jc-scroll::-webkit-scrollbar { width: 8px; }
+  .jc-scroll::-webkit-scrollbar-thumb { background: #d8d4cd; border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  .jc-scroll::-webkit-scrollbar-thumb:hover { background: #c2bdb4; background-clip: content-box; }
+  .jc-thin::-webkit-scrollbar { width: 4px; }
+  .jc-thin::-webkit-scrollbar-thumb { background: #d8d4cd; border-radius: 4px; }
+  .jc-thin { scrollbar-width: thin; scrollbar-color: #d8d4cd transparent; }
+  .jc-arm { transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1); }
+  @keyframes jc-blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+  @keyframes jc-spin { to { transform: rotate(360deg); } }
+  @keyframes jc-rise { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform:none; } }
+  textarea { font-family: inherit; }
+</style>
+</helmet>
+<div style="{{ rootStyle }}">
+  <div style="width:380px; height:824px; max-height:92vh; background:var(--bg); border-radius:16px; box-shadow:0 24px 70px -18px var(--panel-shadow); border:1px solid var(--ring); display:flex; flex-direction:column; overflow:hidden; position:relative;">
+
+    <!-- ====================== HEADER ====================== -->
+    <header style="flex:none; height:52px; display:flex; align-items:center; gap:10px; padding:0 12px 0 14px; border-bottom:1px solid var(--border); background:var(--bg);">
+      <button onClick="{{ goChat }}" title="Home" style="width:24px; height:24px; border:none; padding:0; border-radius:7px; background:var(--accent); display:flex; align-items:center; justify-content:center; flex:none; box-shadow:0 1px 2px var(--accent-glow); cursor:pointer;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:#fff; line-height:1;">J</span>
+      </button>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:13px; font-weight:600; color:var(--text); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sessionTitle }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint); line-height:1.3; letter-spacing:0.02em;">{{ sessionMeta }}</div>
+      </div>
+      <button onClick="{{ goSessions }}" title="Sessions" style="width:32px; height:32px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid);" style-hover="background:var(--hover);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </button>
+      <button onClick="{{ newChat }}" title="New chat" style="width:32px; height:32px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid);" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button onClick="{{ goSettings }}" title="Settings" style="width:32px; height:32px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid);" style-hover="background:var(--hover);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </header>
+
+    <!-- ====================== CHAT SCREEN ====================== -->
+    <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}">
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:18px 14px 8px;">
+
+      <!-- context banner -->
+      <div style="display:flex; align-items:center; gap:7px; padding:7px 10px; background:var(--chip); border:1px solid var(--border); border-radius:9px; margin-bottom:18px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a8478" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        <span style="font-size:11px; color:var(--mid); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Reading <b style="color:var(--text2); font-weight:600;">Q3 Planning</b> · this page</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--faint);">4.2k ctx</span>
+      </div>
+
+      <!-- USER message -->
+      <div style="display:flex; justify-content:flex-end; margin-bottom:18px;">
+        <div style="max-width:84%;">
+          <div style="background:var(--accent-deep); color:#fff; padding:9px 13px; border-radius:14px 14px 4px 14px; font-size:13.5px; line-height:1.5;">Summarize the open risks in this doc and draft a mitigation note I can paste back in.</div>
+        </div>
+      </div>
+
+      <!-- ASSISTANT turn with thinking + tool -->
+      <div style="margin-bottom:6px; animation:jc-rise 0.3s ease;">
+
+        <!-- thinking pill -->
+        <button onClick="{{ toggleThinking }}" style="display:flex; align-items:center; gap:7px; width:100%; padding:7px 10px; background:{{ thinkBg }}; border:1px solid var(--border); border-radius:9px; cursor:pointer; text-align:left; margin-bottom:7px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7a74e0" stroke-width="2" stroke-linecap="round"><path d="M9.5 2A6.5 6.5 0 0 0 6 14.3V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.7A6.5 6.5 0 0 0 9.5 2z"/><path d="M9 21h2"/></svg>
+          <span style="flex:1; font-size:11.5px; color:var(--mid);">Thought for 4s · planned 3 steps</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a8a298" stroke-width="2.2" stroke-linecap="round" style="transform:rotate({{ thinkRot }}); transition:transform 0.2s;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <sc-if value="{{ thinkingOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px; line-height:1.6; color:var(--mid); padding:2px 10px 12px; border-left:2px solid var(--border2); margin:0 0 8px 4px;">
+            The doc lists four risk items but two overlap. I'll group them, rank by impact, then propose one mitigation each. The user wants something pasteable, so I'll keep the note tight and use the doc's existing heading style.
+          </div>
+        </sc-if>
+
+        <!-- tool call -->
+        <div style="border:1px solid var(--border); border-radius:9px; overflow:hidden; margin-bottom:10px; background:var(--surface);">
+          <button onClick="{{ toggleTool }}" style="display:flex; align-items:center; gap:8px; width:100%; padding:8px 10px; background:none; border:none; cursor:pointer; text-align:left;">
+            <span style="width:16px; height:16px; border-radius:5px; background:var(--ok-tint); display:flex; align-items:center; justify-content:center; flex:none;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3f9e5e" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text2); font-weight:500;">search_notes</span>
+            <span style="font-size:10.5px; color:var(--faint);">3 results</span>
+            <span style="flex:1;"></span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a8a298" stroke-width="2.2" stroke-linecap="round" style="transform:rotate({{ toolRot }}); transition:transform 0.2s;"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <sc-if value="{{ toolOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid var(--hover); padding:9px 11px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; line-height:1.6; color:var(--mid); background:var(--raised);">
+              <div style="color:var(--faint);">input</div>
+              <div style="color:var(--text2); margin-bottom:8px;">{ query: "risks", scope: "current_doc" }</div>
+              <div style="color:var(--faint);">output</div>
+              <div style="color:var(--text2);">→ vendor SLA gap<br>→ staffing ramp delay<br>→ data migration window</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- answer body -->
+        <div style="font-size:13.5px; line-height:1.62; color:var(--text2);">
+          <p style="margin-bottom:10px;">Three open risks stand out. The vendor SLA gap and the migration window are the highest impact — both can slip the launch.</p>
+          <div style="font-weight:600; margin-bottom:5px; color:var(--text);">Mitigation note</div>
+          <p style="margin-bottom:10px; color:var(--text2);">Lock the vendor SLA addendum before code-freeze, and schedule the migration inside the Oct 12 maintenance window with a rollback checkpoint.</p>
+        </div>
+
+        <!-- apply-to-note diff card -->
+        <div style="border:1px solid var(--border); border-radius:11px; overflow:hidden; margin:12px 0 4px; box-shadow:0 1px 3px rgba(40,36,30,0.05);">
+          <div style="display:flex; align-items:center; gap:7px; padding:8px 11px; background:var(--raised); border-bottom:1px solid var(--border);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b54d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+            <span style="font-size:11.5px; font-weight:600; color:var(--text2); flex:1;">Proposed edit · Q3 Planning</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--faint);">+3 −1</span>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; line-height:1.65; padding:9px 4px;">
+            <div style="display:flex; padding:1px 9px; background:var(--del-bg);"><span style="color:var(--del-mark); width:14px; flex:none;">−</span><span style="color:var(--del); text-decoration:line-through;">Risks: TBD</span></div>
+            <div style="display:flex; padding:1px 9px; background:var(--add-bg);"><span style="color:var(--add-mark); width:14px; flex:none;">+</span><span style="color:var(--add);">Risks: vendor SLA, migration window,</span></div>
+            <div style="display:flex; padding:1px 9px; background:var(--add-bg);"><span style="color:var(--add-mark); width:14px; flex:none;">+</span><span style="color:var(--add);">staffing ramp — see mitigation below.</span></div>
+          </div>
+          <div style="display:flex; gap:7px; padding:9px 11px; border-top:1px solid var(--hover);">
+            <button style="flex:1; height:30px; border:none; border-radius:7px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:5px;" style-hover="background:var(--accent-hover);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Apply
+            </button>
+            <button style="height:30px; padding:0 12px; border:1px solid var(--border2); border-radius:7px; background:var(--surface); color:var(--mid); font-size:12px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--hover);">Reject</button>
+          </div>
+        </div>
+
+        <!-- message actions -->
+        <div style="display:flex; gap:2px; margin-top:8px;">
+          <button title="Copy" style="width:28px; height:28px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--dim);" style-hover="background:var(--hover); color:var(--mid);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          <button title="Regenerate" style="width:28px; height:28px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--dim);" style-hover="background:var(--hover); color:var(--mid);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg></button>
+          <button title="Insert at cursor" style="height:28px; padding:0 9px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; color:var(--dim); font-size:11px; font-family:inherit;" style-hover="background:var(--hover); color:var(--mid);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Insert</button>
+          <span style="flex:1;"></span>
+          <button title="More" style="width:28px; height:28px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--dim);" style-hover="background:var(--hover); color:var(--mid);"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+        </div>
+      </div>
+
+      <!-- error / retry message -->
+      <div style="margin:16px 0 6px; animation:jc-rise 0.3s ease;">
+        <div style="display:flex; gap:9px; padding:11px 12px; background:var(--err-bg); border:1px solid var(--err-bd); border-radius:11px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c6604f" stroke-width="2" stroke-linecap="round" style="flex:none; margin-top:1px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <div style="flex:1;">
+            <div style="font-size:12.5px; font-weight:600; color:var(--err-title); margin-bottom:2px;">Rate limited by Anthropic</div>
+            <div style="font-size:11.5px; line-height:1.5; color:var(--err-text);">Too many requests. Retry in a few seconds or switch model.</div>
+            <div style="display:flex; gap:7px; margin-top:8px;">
+              <button style="height:27px; padding:0 11px; border:none; border-radius:7px; background:var(--err-btn); color:#fff; font-size:11.5px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-btn-hover);">Retry</button>
+              <button style="height:27px; padding:0 11px; border:1px solid var(--err-btn-bd); border-radius:7px; background:var(--surface); color:var(--err-title); font-size:11.5px; font-weight:500; cursor:pointer; font-family:inherit;">Switch model</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ====================== COMPOSER ====================== -->
+    <div style="flex:none; position:relative; border-top:1px solid var(--border); background:var(--bg); padding:10px 12px 11px;">
+
+      <!-- quick settings (compact selector grid, native to the composer) -->
+      <div style="overflow:hidden; min-height:0; max-height:{{ quickMaxHeight }}; opacity:{{ quickPanelOpacity }}; transition:max-height 0.44s cubic-bezier(0.32,0.72,0,1), opacity 0.3s ease;">
+        <div style="position:relative; display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
+          <sc-if value="{{ modelMenu }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ closeModelMenu }}" style="position:fixed; inset:0; z-index:29;"></div>
+            <div class="jc-thin" style="{{ modelMenuStyle }} background:var(--surface); border:1px solid var(--border2); border-radius:10px; box-shadow:0 14px 36px -10px rgba(40,36,30,0.32), 0 0 0 1px rgba(40,36,30,0.04); padding:5px; z-index:30; max-height:300px; overflow-y:auto; transform-origin:top center; opacity:{{ modelPanelOpacity }}; transform:{{ modelPanelTransform }}; transition:{{ modelPanelTransition }}; will-change:opacity,transform;">
+              <sc-for list="{{ modelOptions }}" as="m" hint-placeholder-count="4">
+                <sc-if value="{{ m.notFirstGroup }}" hint-placeholder-val="{{ false }}">
+                  <div style="height:1px; background:var(--border); margin:4px 8px; transform:scaleY(0.5);"></div>
+                </sc-if>
+                <button onClick="{{ m.onClick }}" onMouseEnter="{{ m.onHover }}" style="display:flex; align-items:center; gap:8px; width:100%; margin:1.5px 0; padding:7px 8px; border:none; background:{{ m.bg }}; border-radius:7px; cursor:pointer; text-align:left; font-family:inherit; opacity:{{ m.optOpacity }}; transform:{{ m.optTransform }}; transition:{{ m.optTransition }}; will-change:opacity,transform;">
+                  <span style="width:6px; height:6px; border-radius:2px; background:{{ m.dot }}; flex:none;"></span>
+                  <span style="flex:1; min-width:0;">
+                    <span style="display:block; font-size:12px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ m.label }}</span>
+                    <span style="display:block; font-size:9px; color:var(--faint); font-family:'IBM Plex Mono',monospace;">{{ m.sub }}</span>
+                  </span>
+                  <sc-if value="{{ m.selected }}" hint-placeholder-val="{{ false }}">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent-text)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="M20 6L9 17l-5-5"/></svg>
+                  </sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-for list="{{ quickRows }}" as="row" hint-placeholder-count="4">
+            <button onClick="{{ row.onClick }}" style="display:flex; flex-direction:column; gap:5px; padding:9px 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); cursor:pointer; text-align:left; opacity:{{ row.itemOpacity }}; transform:{{ row.itemTransform }}; transition:{{ row.itemTransition }}; will-change:opacity,transform;" style-hover="border-color:var(--accent-tint-bd); background:var(--raised);">
+              <span style="display:flex; align-items:center; gap:6px;">
+                <span style="width:6px; height:6px; border-radius:2px; background:{{ row.dot }}; flex:none;"></span>
+                <span style="font-size:8.5px; color:var(--dim); font-family:'IBM Plex Mono',monospace; letter-spacing:0.09em;">{{ row.label }}</span>
+              </span>
+              <span style="display:flex; align-items:center; gap:4px;">
+                <span style="flex:1; min-width:0; font-size:12.5px; color:var(--text); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ row.value }}</span>
+                <span style="position:relative; width:11px; height:11px; flex:none; display:inline-block;">
+                  <svg width="11" height="11" viewBox="0 0 11 11" style="display:block; overflow:visible;">
+                    <path data-chev="{{ row.chevTag }}" d="{{ row.pathD }}" fill="none" stroke="#a8a298" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+                  </svg>
+                </span>
+              </span>
+            </button>
+          </sc-for>
+          <div style="grid-column:1 / -1; display:flex; align-items:center; gap:9px; padding:8px 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); opacity:{{ scopeRowOpacity }}; transform:{{ scopeRowTransform }}; transition:{{ scopeRowTransition }}; will-change:opacity,transform;">
+            <span style="width:6px; height:6px; border-radius:2px; background:oklch(0.70 0.13 190); flex:none;"></span>
+            <span style="font-size:8.5px; color:var(--dim); font-family:'IBM Plex Mono',monospace; letter-spacing:0.09em;">SCOPE</span>
+            <div style="flex:1; display:flex; gap:4px; justify-content:flex-end;">
+              <button onClick="{{ setScopePage }}" style="height:25px; padding:0 11px; border-radius:7px; border:1px solid {{ scopePageBorder }}; background:{{ scopePageBg }}; color:{{ scopePageColor }}; font-size:10.5px; font-weight:600; cursor:pointer; font-family:inherit;">This page</button>
+              <button onClick="{{ setScopeAll }}" style="height:25px; padding:0 11px; border-radius:7px; border:1px solid {{ scopeAllBorder }}; background:{{ scopeAllBg }}; color:{{ scopeAllColor }}; font-size:10.5px; font-weight:600; cursor:pointer; font-family:inherit;">All pages</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- context chips -->
+      <div style="display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 9px; background:var(--accent-tint); background:var(--accent-tint); border:1px solid var(--accent-tint-bd); border-radius:7px; font-size:11px; color:var(--accent-text); font-weight:500;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          @Q3 Planning
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="opacity:0.55; cursor:pointer;"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </span>
+        <button style="display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 9px; background:none; border:1px dashed var(--border2); border-radius:7px; font-size:11px; color:var(--mid); cursor:pointer; font-family:inherit;" style-hover="border-color:var(--dim); color:var(--mid);">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add context
+        </button>
+        <sc-if value="{{ hasActiveSkill }}" hint-placeholder-val="{{ false }}">
+          <span style="display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 9px; background:var(--accent-tint); border:1px solid var(--accent-tint-bd); border-radius:7px; font-size:11px; color:var(--accent-text); font-weight:500;">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+            {{ activeSkillName }}
+            <svg onClick="{{ clearSkill }}" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="opacity:0.55; cursor:pointer;"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </span>
+        </sc-if>
+        <sc-if value="{{ noActiveSkill }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ openSkills }}" style="display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 9px; background:none; border:1px dashed var(--border2); border-radius:7px; font-size:11px; color:var(--mid); cursor:pointer; font-family:inherit;" style-hover="border-color:var(--dim); color:var(--mid);">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>Use skill
+          </button>
+        </sc-if>
+      </div>
+
+      <!-- slash skill autosuggest -->
+      <sc-if value="{{ slashOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface); border:1px solid var(--border2); border-radius:12px; box-shadow:0 12px 30px -10px var(--panel-shadow); padding:5px; margin-bottom:8px; overflow:hidden;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:5px 8px 6px;">SKILLS</div>
+          <sc-for list="{{ slashSkills }}" as="sk" hint-placeholder-count="2">
+            <button onMouseDown="{{ sk.onClick }}" onMouseEnter="{{ sk.onHover }}" style="display:flex; align-items:center; gap:9px; width:100%; padding:8px; border:none; background:{{ sk.bg }}; border-radius:9px; cursor:pointer; text-align:left; font-family:inherit;" style-hover="background:var(--raised);">
+              <span style="width:8px; height:8px; border-radius:3px; background:{{ sk.color }}; flex:none;"></span>
+              <span style="flex:1; min-width:0;"><span style="display:block; font-size:12.5px; font-weight:600; color:var(--text);">{{ sk.title }}</span><span style="display:block; font-size:11px; color:var(--faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sk.desc }}</span></span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--mid); background:var(--chip); padding:2px 6px; border-radius:5px; flex:none;">{{ sk.slashLabel }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- input box -->
+      <div style="border:1px solid {{ inputBorder }}; border-radius:13px; background:var(--surface); padding:9px 10px 7px; transition:border-color 0.15s, box-shadow 0.15s; box-shadow:{{ inputShadow }};">
+        <textarea value="{{ composer }}" onChange="{{ onComposer }}" onKeyDown="{{ onComposerKey }}" onFocus="{{ onFocus }}" onBlur="{{ onBlur }}" placeholder="Ask anything, or / for a skill…" rows="1" style="width:100%; border:none; outline:none; resize:none; font-size:13.5px; line-height:1.5; color:var(--text2); background:none; min-height:20px; max-height:120px;"></textarea>
+        <div style="display:flex; align-items:center; gap:4px; margin-top:6px;">
+          <button title="Attach" style="width:28px; height:28px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--faint);" style-hover="background:var(--hover); color:var(--mid);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.4 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+          <button onClick="{{ openSkills }}" title="Skills" style="width:28px; height:28px; border:none; background:none; border-radius:7px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--faint);" style-hover="background:var(--hover); color:var(--mid);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></button>
+          <span style="flex:1;"></span>
+          <button onClick="{{ send }}" title="Send" style="width:30px; height:30px; border:none; border-radius:9px; background:{{ sendBg }}; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.15s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- meta row -->
+      <div style="display:flex; align-items:center; gap:7px; margin-top:8px; padding:0 2px;">
+        <button onClick="{{ toggleQuick }}" style="display:inline-flex; align-items:center; gap:5px; height:24px; padding:0 8px 0 7px; background:{{ quickBtnBg }}; border:1px solid var(--border2); border-radius:7px; cursor:pointer; font-family:inherit;" style-hover="background:var(--hover);">
+          <span style="width:6px; height:6px; border-radius:50%; background:var(--accent);"></span>
+          <span style="font-size:11px; color:var(--text2); font-weight:500;">{{ model }}</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a8a298" stroke-width="2.4" stroke-linecap="round" style="transform:rotate({{ quickRot }}); transition:transform 0.2s;"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint);">{{ presetSummary }}</span>
+        <span style="flex:1;"></span>
+
+        <!-- usage trigger + hover detail panel -->
+        <div ref="{{ usageWrapRef }}" onMouseEnter="{{ onUsageEnter }}" style="position:relative; display:flex; align-items:center; gap:7px; height:24px; cursor:default;">
+          <sc-if value="{{ usageHover }}" hint-placeholder-val="{{ false }}">
+            <div ref="{{ usagePopRef }}" style="position:absolute; right:-4px; bottom:calc(100% + 9px); width:236px; background:var(--surface); border:1px solid var(--border2); border-radius:13px; box-shadow:0 16px 40px -12px rgba(40,36,30,0.34), 0 0 0 1px rgba(40,36,30,0.04); padding:12px; z-index:20; animation:jc-rise 0.14s ease;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:9px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em;">CONTEXT WINDOW</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--accent-text); font-weight:600;">{{ ctxPctNum }}%</span>
+              </div>
+              <div style="height:6px; border-radius:99px; background:var(--chip); overflow:hidden; margin-bottom:6px;">
+                <div style="width:{{ ctxPctWidth }}; height:100%; background:var(--accent); border-radius:99px;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint); margin-bottom:11px;">
+                <span>{{ ctxUsedTokens }} used</span><span>{{ ctxMaxTokens }} limit</span>
+              </div>
+              <div style="height:1px; background:var(--hover); margin:0 -2px 10px;"></div>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11.5px; color:var(--mid);">This message</span><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text2); font-weight:500;">{{ costUsd }}</span></div>
+                <div style="display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11.5px; color:var(--mid);">Session total</span><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text2); font-weight:500;">{{ sessionCost }}</span></div>
+                <div style="display:flex; align-items:center; justify-content:space-between;"><span style="font-size:11.5px; color:var(--mid);">Tokens in · out</span><span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text2); font-weight:500;">{{ tokensIO }}</span></div>
+              </div>
+            </div>
+          </sc-if>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint);">{{ costUsd }}</span>
+          <span style="width:3px; height:3px; border-radius:50%; background:var(--dim);"></span>
+          <span style="display:block; width:28px; height:5px; border-radius:99px; background:var(--chip); overflow:hidden;">
+            <span style="display:block; width:{{ ctxPctWidth }}; height:100%; background:var(--accent); border-radius:99px;"></span>
+          </span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ====================== SESSIONS ====================== -->
+    <sc-if value="{{ isSessions }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:10px; padding:12px 14px 8px;">
+      <span style="font-size:14px; font-weight:600; color:var(--text); flex:1;">Sessions</span>
+      <button onClick="{{ newChat }}" style="display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New
+      </button>
+    </div>
+    <div style="flex:none; padding:0 14px 10px;">
+      <div style="display:flex; align-items:center; gap:8px; height:36px; padding:0 11px; background:var(--surface); border:1px solid var(--border2); border-radius:10px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a8a298" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Search sessions" style="flex:1; border:none; outline:none; background:none; font-size:13px; color:var(--text2); font-family:inherit;" />
+      </div>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:2px 14px 14px;">
+      <div style="display:flex; align-items:center; gap:6px; padding:8px 2px 7px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#e0a33a" stroke="#e0a33a" stroke-width="1.5" stroke-linejoin="round"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em;">BOOKMARKED</span>
+      </div>
+      <sc-for list="{{ pinned }}" as="ses" hint-placeholder-count="1">
+        <div style="display:flex; gap:10px; padding:9px 10px; border:1px solid var(--border); border-radius:11px; background:var(--surface); margin-bottom:8px; cursor:pointer;" style-hover="border-color:var(--border);">
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ ses.title }}</div>
+            <div style="font-size:11.5px; color:var(--faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ ses.snippet }}</div>
+          </div>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--faint); align-self:center; white-space:nowrap;">{{ ses.meta }}</span>
+        </div>
+      </sc-for>
+      <sc-for list="{{ groups }}" as="grp" hint-placeholder-count="3">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:12px 2px 7px;">{{ grp.label }}</div>
+        <sc-for list="{{ grp.items }}" as="ses" hint-placeholder-count="2">
+          <div onClick="{{ goChat }}" style="display:flex; gap:10px; align-items:center; padding:9px 10px; border-radius:11px; margin-bottom:3px; cursor:pointer; background:{{ ses.bg }};" style-hover="background:var(--chip);">
+            <span style="width:7px; height:7px; border-radius:50%; flex:none; background:{{ ses.dot }};"></span>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:500; color:var(--text2); margin-bottom:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ ses.title }}</div>
+              <div style="font-size:11.5px; color:var(--faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ ses.snippet }}</div>
+            </div>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--faint); align-self:flex-start; margin-top:2px;">{{ ses.time }}</span>
+          </div>
+        </sc-for>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- ====================== SETTINGS ====================== -->
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:6px; padding:12px 14px 10px;">
+      <span style="font-size:14px; font-weight:600; color:var(--text); flex:1;">Settings</span>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:0 14px 16px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:6px 2px 8px;">AI PROVIDERS</div>
+      <sc-for list="{{ providers }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.onClick }}" style="display:flex; align-items:center; gap:11px; padding:10px 11px; border:1px solid var(--border); border-radius:11px; background:var(--surface); margin-bottom:8px; cursor:pointer;" style-hover="border-color:var(--accent-tint-bd);">
+          <span style="width:30px; height:30px; border-radius:8px; background:{{ p.tint }}; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--text2); flex:none;">{{ p.initial }}</span>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:600; color:var(--text);">{{ p.name }}</div>
+            <div style="font-size:11px; color:var(--faint); display:flex; align-items:center; gap:5px;"><span style="width:6px; height:6px; border-radius:50%; background:{{ p.dot }};"></span>{{ p.detail }}</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </sc-for>
+      <button onClick="{{ goOnboarding }}" style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:38px; border:1px dashed var(--border2); border-radius:11px; background:none; color:var(--mid); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit; margin-bottom:4px;" style-hover="border-color:var(--dim); color:var(--mid);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add provider
+      </button>
+
+      <sc-for list="{{ settingsGroups }}" as="grp" hint-placeholder-count="2">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:16px 2px 8px;">{{ grp.label }}</div>
+        <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+          <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="3">
+            <div onClick="{{ it.onClick }}" style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip); cursor:pointer;" style-hover="background:var(--raised);">
+              <span style="width:26px; height:26px; border-radius:7px; background:{{ it.tint }}; display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--text2);">{{ it.icon }}</span>
+              <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">{{ it.name }}</span>
+              <span style="font-size:12px; color:var(--faint);">{{ it.value }}</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:16px 2px 8px;">PREFERENCES</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--text2);">☾</span>
+          <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Dark mode</span>
+          <button onClick="{{ toggleTheme }}" title="Toggle theme" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ themeTrackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;">
+            <span style="position:absolute; top:2px; left:{{ themeKnobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span>
+          </button>
+        </div>
+        <div style="padding:11px; border-top:1px solid var(--chip);">
+          <div style="display:flex; align-items:center; gap:11px; margin-bottom:12px;">
+            <span style="width:26px; height:26px; border-radius:7px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--accent-text);">◐</span>
+            <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Accent color</span>
+          </div>
+          <div style="display:flex; gap:12px; padding-left:37px;">
+            <sc-for list="{{ swatches }}" as="sw" hint-placeholder-count="6">
+              <button onClick="{{ sw.onClick }}" title="{{ sw.name }}" style="width:24px; height:24px; border-radius:50%; border:none; padding:0; cursor:pointer; background:{{ sw.fill }}; box-shadow:{{ sw.ringShadow }}; transition:box-shadow 0.15s;"></button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-top:1px solid var(--chip); cursor:pointer;" style-hover="background:var(--raised);">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--warm-tint); display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--text2);">⌘</span>
+          <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Keyboard shortcuts</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--faint);">⌘ J</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ====================== CONTEXT & RETRIEVAL ====================== -->
+    <sc-if value="{{ isContext }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Context &amp; retrieval</span>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px;">
+      <div style="font-size:11.5px; color:var(--faint); line-height:1.5; padding:0 2px;">Control what J Chat can read by default and how it pulls in extra knowledge.</div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">ATTACHED BY DEFAULT</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--accent-text);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Current page</div><div style="font-size:10.5px; color:var(--faint);">Full text of the page you're on</div></div>
+          <button onClick="{{ srcPage.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ srcPage.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ srcPage.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--blue-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--text2);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4M3 15v4a2 2 0 0 0 2 2h4M15 3h4a2 2 0 0 1 2 2v4M21 15v4a2 2 0 0 1-2 2h-4"/></svg></span>
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Active selection</div><div style="font-size:10.5px; color:var(--faint);">Highlighted text, when present</div></div>
+          <button onClick="{{ srcSelection.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ srcSelection.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ srcSelection.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--warm-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--text2);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/></svg></span>
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Open tabs</div><div style="font-size:10.5px; color:var(--faint);">Titles &amp; URLs of tabs in this window</div></div>
+          <button onClick="{{ srcTabs.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ srcTabs.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ srcTabs.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--ok-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--text2);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg></span>
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Linked pages</div><div style="font-size:10.5px; color:var(--faint);">Pages referenced from this one</div></div>
+          <button onClick="{{ srcLinked.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ srcLinked.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ srcLinked.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:7px; padding:18px 2px 8px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em;">RAG MEMORY</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; font-weight:600; color:var(--accent-text); background:var(--accent-tint); border:1px solid var(--accent-tint-bd); padding:1px 5px; border-radius:5px; letter-spacing:0.04em;">BETA</span>
+      </div>
+      <div style="border:1px solid {{ ragCardBorder }}; border-radius:12px; background:{{ ragCardBg }}; padding:12px; transition:background 0.18s, border-color 0.18s;">
+        <div style="display:flex; align-items:flex-start; gap:11px;">
+          <span style="width:32px; height:32px; border-radius:9px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; flex:none; color:var(--accent-text);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></span>
+          <div style="flex:1; min-width:0; padding-top:1px;">
+            <div style="font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:3px;">Retrieval-augmented memory</div>
+            <div style="font-size:11.5px; line-height:1.5; color:var(--mid);">Index your pages into an on-device vector store so the assistant can recall relevant passages automatically — even from chats and pages you've closed.</div>
+          </div>
+          <button onClick="{{ ragToggle.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ ragToggle.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none; margin-top:2px;"><span style="position:absolute; top:2px; left:{{ ragToggle.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+      </div>
+
+      <sc-if value="{{ ragOn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:11px; padding:9px 11px; border:1px solid var(--border); border-radius:11px; background:var(--surface); margin-top:9px;">
+          <span style="width:8px; height:8px; border-radius:50%; background:var(--ok); flex:none; box-shadow:0 0 0 3px var(--ok-tint);"></span>
+          <div style="flex:1; min-width:0;"><div style="font-size:12.5px; color:var(--text2); font-weight:500;">1,284 chunks · 18 pages indexed</div><div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint);">Updated 4 min ago</div></div>
+          <button style="height:28px; padding:0 11px; border:1px solid var(--border2); border-radius:8px; background:var(--bg); color:var(--mid); font-size:11.5px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--hover);">Reindex</button>
+        </div>
+
+        <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden; margin-top:9px;">
+          <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip); cursor:pointer;" style-hover="background:var(--raised);">
+            <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Embeddings model</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--faint);">text-embed-3-sm</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+          </div>
+          <div style="padding:12px 11px; border-bottom:1px solid var(--chip);">
+            <div style="display:flex; align-items:center; margin-bottom:9px;">
+              <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Passages retrieved</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent-text); background:var(--accent-tint); padding:1px 8px; border-radius:5px;">top {{ ragTopKLabel }}</span>
+            </div>
+            <input type="range" min="1" max="12" step="1" value="{{ ragTopK }}" onChange="{{ onRagTopK }}" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
+            <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); margin-top:4px;"><span>focused</span><span>broad</span></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+            <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Re-rank results</div><div style="font-size:10.5px; color:var(--faint);">Second pass to sharpen relevance</div></div>
+            <button onClick="{{ ragRerank.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ ragRerank.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ ragRerank.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+          </div>
+          <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+            <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Auto-index on edit</div><div style="font-size:10.5px; color:var(--faint);">Keep the store fresh as pages change</div></div>
+            <button onClick="{{ ragAutoindex.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ ragAutoindex.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ ragAutoindex.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+          </div>
+        </div>
+        <button style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:36px; margin-top:9px; border:none; border-radius:11px; background:none; color:var(--err-btn); font-size:12px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-bg);">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Clear memory store
+        </button>
+      </sc-if>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">CHAT HISTORY</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="padding:12px 11px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;">
+            <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Auto-delete chats</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent-text); background:var(--accent-tint); padding:1px 8px; border-radius:5px;">{{ historyDaysLabel }}</span>
+            <button onClick="{{ clearHistory }}" title="Clear all history now" style="width:28px; height:24px; border:1px solid var(--err-btn-bd); border-radius:7px; background:var(--err-bg); color:var(--err-btn); display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none; padding:0;" style-hover="background:var(--err-bg);">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            </button>
+          </div>
+          <input type="range" min="7" max="365" step="1" value="{{ historyDays }}" onChange="{{ onHistoryDays }}" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
+          <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); margin-top:4px;"><span>7 days</span><span>never</span></div>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+    <!-- ====================== EDIT BEHAVIOR ====================== -->
+    <sc-if value="{{ isEditBeh }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Edit behavior</span>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px;">
+      <div style="font-size:11.5px; color:var(--faint); line-height:1.5; padding:0 2px;">Decide how the assistant applies changes to your pages and notes.</div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">WHEN AN EDIT IS PROPOSED</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button onClick="{{ setEditScope }}" style="display:flex; align-items:flex-start; gap:11px; width:100%; padding:11px; border:1px solid {{ ebPreviewBorder }}; border-radius:11px; background:{{ ebPreviewBg }}; cursor:pointer; text-align:left; font-family:inherit; transition:border-color 0.15s;">
+          <span style="width:18px; height:18px; border-radius:50%; border:2px solid {{ ebPreviewDot }}; flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ ebPreviewSel }}" hint-placeholder-val="{{ true }}"><span style="width:8px; height:8px; border-radius:50%; background:var(--accent);"></span></sc-if></span>
+          <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:var(--text);">Preview diffs</div><div style="font-size:11px; color:var(--faint); line-height:1.45; margin-top:2px;">Show a tracked diff card and wait for you to apply.</div></div>
+        </button>
+        <button onClick="{{ setEditScopeAsk }}" style="display:flex; align-items:flex-start; gap:11px; width:100%; padding:11px; border:1px solid {{ ebAskBorder }}; border-radius:11px; background:{{ ebAskBg }}; cursor:pointer; text-align:left; font-family:inherit; transition:border-color 0.15s;">
+          <span style="width:18px; height:18px; border-radius:50%; border:2px solid {{ ebAskDot }}; flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ ebAskSel }}" hint-placeholder-val="{{ false }}"><span style="width:8px; height:8px; border-radius:50%; background:var(--accent);"></span></sc-if></span>
+          <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:var(--text);">Ask each time</div><div style="font-size:11px; color:var(--faint); line-height:1.45; margin-top:2px;">Prompt before touching the page, every time.</div></div>
+        </button>
+        <button onClick="{{ setEditScopeAuto }}" style="display:flex; align-items:flex-start; gap:11px; width:100%; padding:11px; border:1px solid {{ ebAutoBorder }}; border-radius:11px; background:{{ ebAutoBg }}; cursor:pointer; text-align:left; font-family:inherit; transition:border-color 0.15s;">
+          <span style="width:18px; height:18px; border-radius:50%; border:2px solid {{ ebAutoDot }}; flex:none; margin-top:1px; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ ebAutoSel }}" hint-placeholder-val="{{ false }}"><span style="width:8px; height:8px; border-radius:50%; background:var(--accent);"></span></sc-if></span>
+          <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:var(--text);">Auto-apply <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--err-title); background:var(--err-bg); border:1px solid var(--err-bd); padding:1px 5px; border-radius:5px; font-weight:600; letter-spacing:0.03em;">RISKY</span></div><div style="font-size:11px; color:var(--faint); line-height:1.45; margin-top:2px;">Write changes immediately — undo is still available.</div></div>
+        </button>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">SAFEGUARDS</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Tracked changes</div><div style="font-size:10.5px; color:var(--faint);">Record edits as reviewable suggestions</div></div>
+          <button onClick="{{ ebTrackChanges.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ ebTrackChanges.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ ebTrackChanges.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Confirm multi-block edits</div><div style="font-size:10.5px; color:var(--faint);">Ask when more than 3 blocks change</div></div>
+          <button onClick="{{ ebConfirmMulti.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ ebConfirmMulti.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ ebConfirmMulti.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ====================== DATA & PRIVACY ====================== -->
+    <sc-if value="{{ isPrivacy }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Data &amp; privacy</span>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px;">
+      <div style="display:flex; gap:10px; padding:12px; border:1px solid var(--accent-tint-bd); border-radius:12px; background:var(--accent-tint);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none; margin-top:1px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div style="flex:1;"><div style="font-size:12.5px; font-weight:600; color:var(--accent-text); margin-bottom:2px;">Your keys and history stay on this device</div><div style="font-size:11px; line-height:1.5; color:var(--mid);">Nothing is sent anywhere except directly to the providers you configure.</div></div>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">SHARING</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Opt out of training</div><div style="font-size:10.5px; color:var(--faint);">Send no-train headers to providers</div></div>
+          <button onClick="{{ trainingOptOut.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ trainingOptOut.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ trainingOptOut.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Redact PII before sending</div><div style="font-size:10.5px; color:var(--faint);">Mask emails, phones &amp; keys in prompts</div></div>
+          <button onClick="{{ redactPii.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ redactPii.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ redactPii.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+          <div style="flex:1; min-width:0;"><div style="font-size:13px; color:var(--text2); font-weight:500;">Anonymous usage stats</div><div style="font-size:10.5px; color:var(--faint);">Share crash &amp; usage telemetry</div></div>
+          <button onClick="{{ telemetry.onClick }}" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ telemetry.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;"><span style="position:absolute; top:2px; left:{{ telemetry.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span></button>
+        </div>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">DANGER ZONE</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button style="display:flex; align-items:center; gap:9px; width:100%; height:42px; padding:0 12px; border:1px solid var(--border2); border-radius:11px; background:var(--surface); color:var(--text2); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--hover);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Export all data <span style="flex:1;"></span><span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--faint);">.json</span>
+        </button>
+        <button style="display:flex; align-items:center; gap:9px; width:100%; height:42px; padding:0 12px; border:1px solid var(--err-bd); border-radius:11px; background:var(--err-bg); color:var(--err-btn); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-bg);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete all chats &amp; data
+        </button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ====================== SKILLS PICKER ====================== -->
+    <sc-if value="{{ isSkills }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ goChat }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Skills</span>
+      <button onClick="{{ goSkillsManage }}" title="Manage skills" style="display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border:1px solid var(--border2); border-radius:8px; background:var(--surface); color:var(--mid); font-size:12px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--hover);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Manage
+      </button>
+    </div>
+    <div style="flex:none; padding:0 14px 6px;">
+      <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">Click a skill to steer the next reply, or type <span style="font-family:'IBM Plex Mono',monospace; color:var(--mid); background:var(--chip); padding:1px 5px; border-radius:5px; font-size:10.5px;">/</span> in the composer.</div>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:8px 14px 14px;">
+      <sc-for list="{{ skillsPicker }}" as="sk" hint-placeholder-count="2">
+        <div onClick="{{ sk.run }}" style="border:1px solid {{ sk.cardBorder }}; border-radius:12px; background:{{ sk.cardBg }}; padding:11px 12px; margin-bottom:9px; cursor:pointer;" style-hover="border-color:var(--accent-tint-bd);">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <span style="width:8px; height:8px; border-radius:3px; background:{{ sk.color }}; flex:none;"></span>
+            <span style="flex:1; font-size:13px; font-weight:600; color:var(--text);">{{ sk.title }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--mid); background:var(--chip); padding:2px 6px; border-radius:5px;">{{ sk.slashLabel }}</span>
+          </div>
+          <div style="font-size:12px; line-height:1.5; color:var(--mid);">{{ sk.desc }}</div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- ====================== SKILLS MANAGE ====================== -->
+    <sc-if value="{{ isSkillsManage }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Skills</span>
+      <button onClick="{{ goSkillNew }}" style="display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add skill
+      </button>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:8px 14px 16px;">
+      <sc-for list="{{ skillsManageList }}" as="sk" hint-placeholder-count="2">
+        <div onClick="{{ sk.open }}" style="display:flex; align-items:center; gap:11px; padding:11px 12px; border:1px solid var(--border); border-radius:12px; background:var(--surface); margin-bottom:9px; cursor:pointer;" style-hover="border-color:var(--accent-tint-bd);">
+          <span style="width:30px; height:30px; border-radius:8px; background:{{ sk.color }}; display:flex; align-items:center; justify-content:center; flex:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          </span>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:6px;"><span style="font-size:13px; font-weight:600; color:var(--text);">{{ sk.title }}</span><span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--mid); background:var(--chip); padding:1px 5px; border-radius:5px;">{{ sk.slashLabel }}</span></div>
+            <div style="font-size:11px; color:var(--faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sk.desc }}</div>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- ====================== SKILL EDITOR ====================== -->
+    <sc-if value="{{ isSkillEdit }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ goSkillsManage }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Edit skill</span>
+      <button onClick="{{ goSkillsManage }}" style="height:28px; padding:0 13px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">Done</button>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+        <span style="width:34px; height:34px; border-radius:9px; background:{{ editColor }}; display:flex; align-items:center; justify-content:center; flex:none;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mid); background:var(--chip); padding:4px 9px; border-radius:7px;">{{ editSlash }}</span>
+      </div>
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Title</label>
+      <input value="{{ editTitle }}" onChange="{{ onEditTitle }}" style="width:100%; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-size:13.5px; font-weight:600; color:var(--text); outline:none; font-family:inherit; margin-bottom:14px; box-sizing:border-box;" />
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Instructions <span style="color:var(--dim);">· Markdown</span></label>
+      <div style="font-size:10.5px; color:var(--faint); line-height:1.5; margin:0 2px 7px;">Front matter is required. The <span style="font-family:'IBM Plex Mono',monospace; color:var(--mid); background:var(--chip); padding:1px 5px; border-radius:5px;">name:</span> field becomes the <span style="font-family:'IBM Plex Mono',monospace; color:var(--mid);">/command</span>.</div>
+      <textarea value="{{ editText }}" onChange="{{ onEditText }}" class="jc-scroll" placeholder="---&#10;name: my-skill&#10;description: When to use this skill&#10;---&#10;&#10;# My Skill&#10;&#10;Instructions in Markdown…" style="flex:1; width:100%; min-height:260px; padding:12px; border:1px solid var(--border2); border-radius:11px; background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:var(--text2); outline:none; resize:none; box-sizing:border-box;"></textarea>
+      <button onClick="{{ removeEditSkill }}" style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:38px; margin-top:14px; border:none; border-radius:11px; background:none; color:var(--err-btn); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-bg);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete skill
+      </button>
+    </div>
+    </sc-if>
+
+    <!-- ====================== NEW SKILL ====================== -->
+    <sc-if value="{{ isSkillNew }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ goSkillsManage }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">New skill</span>
+      <button onClick="{{ createSkill }}" style="height:28px; padding:0 13px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">Create</button>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px; display:flex; flex-direction:column;">
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Title</label>
+      <input value="{{ newTitle }}" onChange="{{ onNewTitle }}" placeholder="e.g. Translate to French" style="width:100%; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-size:13.5px; font-weight:600; color:var(--text); outline:none; font-family:inherit; margin-bottom:16px; box-sizing:border-box;" />
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; margin-bottom:6px;">HOW TO ADD THE INSTRUCTIONS</div>
+      <div style="font-size:10.5px; color:var(--faint); line-height:1.5; margin-bottom:9px;">Front matter is required. The <span style="font-family:'IBM Plex Mono',monospace; color:var(--mid); background:var(--chip); padding:1px 5px; border-radius:5px;">name:</span> field becomes the <span style="font-family:'IBM Plex Mono',monospace; color:var(--mid);">/command</span>.</div>
+      <div style="display:flex; gap:4px; padding:4px; background:var(--raised); border:1px solid var(--border); border-radius:10px; margin-bottom:13px;">
+        <button onClick="{{ setMethodPaste }}" style="flex:1; height:32px; border:none; border-radius:7px; background:{{ newPasteBg }}; color:{{ newPasteColor }}; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/></svg>Paste text
+        </button>
+        <button onClick="{{ setMethodUpload }}" style="flex:1; height:32px; border:none; border-radius:7px; background:{{ newUploadBg }}; color:{{ newUploadColor }}; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>Upload file
+        </button>
+      </div>
+
+      <sc-if value="{{ newMethodPaste }}" hint-placeholder-val="{{ true }}">
+        <textarea value="{{ newText }}" onChange="{{ onNewText }}" class="jc-scroll" placeholder="---&#10;name: my-skill&#10;description: When to use this skill&#10;---&#10;&#10;# My Skill&#10;&#10;Instructions in Markdown…" style="flex:1; width:100%; min-height:240px; padding:12px; border:1px solid var(--border2); border-radius:11px; background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:12px; line-height:1.6; color:var(--text2); outline:none; resize:none; box-sizing:border-box;"></textarea>
+      </sc-if>
+      <sc-if value="{{ newMethodUpload }}" hint-placeholder-val="{{ false }}">
+        <div onDragOver="{{ onMdOver }}" onDragLeave="{{ onMdLeave }}" onDrop="{{ onMdDrop }}" style="flex:1; min-height:240px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:24px; border:1.5px dashed {{ mdDropBorder }}; border-radius:13px; background:{{ mdDropBg }}; transition:border-color 0.15s, background 0.15s; text-align:center;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--mid)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          <div style="font-size:13px; font-weight:600; color:var(--text2);">Drop a Markdown file</div>
+          <div style="font-size:11px; color:var(--faint); font-family:'IBM Plex Mono',monospace;">a .md file fills in the instructions below</div>
+          <sc-if value="{{ newText }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:6px; font-size:11px; color:var(--accent-text); display:flex; align-items:center; gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Loaded — press Create</div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+    </sc-if>
+
+    <!-- ====================== ONBOARDING ====================== -->
+    <sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ false }}">
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; padding:30px 22px;">
+      <div style="width:44px; height:44px; border-radius:13px; background:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:0 4px 14px -3px var(--accent-glow);">
+        <span style="font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:24px; color:#fff;">J</span>
+      </div>
+      <div style="font-size:21px; font-weight:700; color:var(--text); line-height:1.2; margin-bottom:8px;">Welcome to J Chat</div>
+      <div style="font-size:13.5px; line-height:1.55; color:var(--mid); margin-bottom:22px;">Connect an AI provider to start chatting with any page you're on. Your keys stay on this device.</div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; margin-bottom:10px;">CONNECT A PROVIDER</div>
+      <sc-for list="{{ providers }}" as="p" hint-placeholder-count="3">
+        <button style="display:flex; align-items:center; gap:11px; width:100%; padding:11px; border:1px solid var(--border); border-radius:12px; background:var(--surface); margin-bottom:9px; cursor:pointer; text-align:left; font-family:inherit;" style-hover="border-color:var(--accent-tint-bd); background:var(--raised);">
+          <span style="width:32px; height:32px; border-radius:9px; background:{{ p.tint }}; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:14px; color:var(--text2); flex:none;">{{ p.initial }}</span>
+          <span style="flex:1; font-size:13.5px; font-weight:600; color:var(--text);">{{ p.name }}</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </sc-for>
+      <button onClick="{{ goChat }}" style="margin-top:8px; height:34px; border:none; background:none; color:var(--mid); font-size:12.5px; cursor:pointer; font-family:inherit; align-self:flex-start;" style-hover="color:var(--accent);">Skip for now →</button>
+    </div>
+    </sc-if>
+
+    <!-- ====================== PROVIDER CONFIG ====================== -->
+    <sc-if value="{{ isProvider }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">{{ provTitle }}</span>
+      <button onClick="{{ backSettings }}" style="height:28px; padding:0 13px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">Done</button>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:4px 14px 18px;">
+      <div style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface);">
+        <span style="width:38px; height:38px; border-radius:10px; background:{{ provTint }}; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:16px; color:var(--text2); flex:none;">{{ provInitial }}</span>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:13.5px; font-weight:600; color:var(--text);">{{ provTitle }}</div>
+          <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:2px 8px; border-radius:6px; background:{{ provStatusBg }}; color:{{ provStatusColor }}; margin-top:4px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:{{ provStatusColor }};"></span>{{ provStatusText }}</span>
+        </div>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:16px 2px 8px;">AUTHENTICATION</div>
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">API key</label>
+      <div style="display:flex; gap:7px; margin-bottom:11px;">
+        <input value="{{ provKeyShown }}" readonly style="flex:1; min-width:0; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2); outline:none;" />
+        <button onClick="{{ toggleKey }}" title="Show / hide" style="width:38px; height:38px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none;" style-hover="background:var(--hover);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Base URL</label>
+      <input value="{{ provBaseUrl }}" style="width:100%; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2); outline:none; margin-bottom:11px;" />
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Organization ID <span style="color:var(--dim);">· optional</span></label>
+      <input placeholder="org-…" style="width:100%; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2); outline:none;" />
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">ENABLED MODELS</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <sc-for list="{{ provModels }}" as="m" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; color:var(--text2); font-weight:500;">{{ m.name }}</div>
+              <div style="font-size:10.5px; color:var(--faint); font-family:'IBM Plex Mono',monospace;">{{ m.sub }}</div>
+            </div>
+            <button onClick="{{ m.onClick }}" title="Toggle" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ m.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;">
+              <span style="position:absolute; top:2px; left:{{ m.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">REQUEST DEFAULTS</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+          <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Max output tokens</span>
+          <input value="4096" style="width:74px; height:30px; padding:0 9px; border:1px solid var(--border2); border-radius:8px; background:var(--bg); font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--text2); outline:none; text-align:right;" />
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:11px;">
+          <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Stream responses</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ok); background:var(--ok-tint); padding:2px 8px; border-radius:6px; font-weight:600;">on</span>
+        </div>
+      </div>
+
+      <button style="display:flex; align-items:center; justify-content:center; gap:7px; width:100%; height:40px; margin-top:16px; border:1px solid var(--accent-tint-bd); border-radius:11px; background:var(--accent-tint); color:var(--accent-text); font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-tint);">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+        Test connection
+      </button>
+      <button style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:38px; margin-top:9px; border:none; border-radius:11px; background:none; color:var(--err-btn); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-bg);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Remove provider
+      </button>
+    </div>
+    </sc-if>
+
+    <!-- ====================== GITHUB COPILOT DEVICE AUTH ====================== -->
+    <sc-if value="{{ isCopilot }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">GitHub Copilot</span>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; align-items:center; padding:18px 22px 24px;">
+      <div style="width:52px; height:52px; border-radius:15px; background:var(--chip); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+        <svg width="28" height="28" viewBox="0 0 16 16" fill="var(--text2)"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      </div>
+      <div style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:7px; text-align:center;">Connect with device code</div>
+      <div style="font-size:12.5px; line-height:1.55; color:var(--mid); text-align:center; max-width:262px; margin-bottom:22px;">Open the GitHub device page and enter the code below to authorize J Chat for Copilot.</div>
+
+      <div style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; margin-bottom:8px;">YOUR DEVICE CODE</div>
+      <div style="display:flex; align-items:center; gap:9px; width:100%; padding:5px 5px 5px 16px; border:1px solid var(--border2); border-radius:13px; background:var(--surface); margin-bottom:16px;">
+        <span style="flex:1; font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; letter-spacing:0.14em; color:var(--text); text-align:center;">{{ copilotCode }}</span>
+        <button onClick="{{ copyCode }}" title="Copy code" style="width:42px; height:42px; border:none; border-radius:9px; background:var(--chip); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none;" style-hover="background:var(--hover); color:var(--accent);">
+          <sc-if value="{{ copyOk }}" hint-placeholder-val="{{ false }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </sc-if>
+          <sc-if value="{{ copyNot }}" hint-placeholder-val="{{ true }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </sc-if>
+        </button>
+      </div>
+
+      <button onClick="{{ openDevice }}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:44px; border:none; border-radius:12px; background:var(--accent); color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; box-shadow:0 4px 14px -4px var(--accent-glow);" style-hover="background:var(--accent-hover);">
+        Open github.com/login/device
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      </button>
+
+      <div style="display:flex; align-items:center; gap:8px; margin-top:18px; font-size:11.5px; color:var(--faint); font-family:'IBM Plex Mono',monospace;">
+        <span style="width:7px; height:7px; border-radius:50%; background:var(--accent); animation:jc-blink 1.4s ease-in-out infinite;"></span>
+        Waiting for authorization…
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ====================== MODES LIST ====================== -->
+    <sc-if value="{{ isModes }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ backSettings }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">Modes</span>
+      <button style="display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New
+      </button>
+    </div>
+    <div style="flex:none; padding:0 14px 6px;">
+      <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">Each mode bundles a system prompt, model, tools, and temperature. Switch between them from the composer.</div>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:8px 14px 14px;">
+      <sc-for list="{{ modesList }}" as="m" hint-placeholder-count="4">
+        <div onClick="{{ m.onClick }}" style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface); margin-bottom:9px; cursor:pointer;" style-hover="border-color:var(--accent-tint-bd);">
+          <span style="width:34px; height:34px; border-radius:9px; background:{{ m.tint }}; display:flex; align-items:center; justify-content:center; font-size:15px; color:{{ m.iconColor }}; flex:none;">{{ m.icon }}</span>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:2px;">{{ m.name }}</div>
+            <div style="font-size:11.5px; color:var(--faint); line-height:1.4;">{{ m.desc }}</div>
+            <div style="display:flex; gap:6px; margin-top:7px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--mid); background:var(--chip); padding:2px 7px; border-radius:5px;">{{ m.model }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--mid); background:var(--chip); padding:2px 7px; border-radius:5px;">{{ m.badge }}</span>
+            </div>
+          </div>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round" style="align-self:center;"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- ====================== MODE EDITOR ====================== -->
+    <sc-if value="{{ isModeEdit }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none; display:flex; align-items:center; gap:8px; padding:12px 12px 8px;">
+      <button onClick="{{ goModes }}" title="Back" style="width:30px; height:30px; border:none; background:none; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--mid); flex:none; margin-left:-4px;" style-hover="background:var(--hover);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span style="flex:1; font-size:14px; font-weight:600; color:var(--text);">{{ modeTitle }}</span>
+      <button onClick="{{ saveMode }}" style="height:28px; padding:0 14px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit;" style-hover="background:var(--accent-hover);">Save</button>
+    </div>
+    <div class="jc-scroll" style="flex:1; overflow-y:auto; padding:6px 14px 18px;">
+      <div style="display:flex; gap:11px; align-items:center; margin-bottom:14px;">
+        <span style="width:44px; height:44px; border-radius:11px; background:{{ meTint }}; display:flex; align-items:center; justify-content:center; font-size:19px; color:{{ meIconColor }}; flex:none; cursor:pointer;">{{ meIcon }}</span>
+        <input value="{{ meName }}" onChange="{{ onMeName }}" placeholder="Mode name" style="flex:1; min-width:0; height:38px; padding:0 12px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-size:14px; font-weight:600; color:var(--text); outline:none;" />
+      </div>
+
+      <label style="display:block; font-size:11px; color:var(--faint); margin:0 2px 5px;">Description</label>
+      <input value="{{ meDesc }}" onChange="{{ onMeDesc }}" placeholder="What this mode is good for" style="width:100%; height:38px; padding:0 11px; border:1px solid var(--border2); border-radius:10px; background:var(--surface); font-size:13px; color:var(--text2); outline:none;" />
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">SYSTEM PROMPT</div>
+      <textarea value="{{ mePrompt }}" onChange="{{ onMePrompt }}" rows="6" style="width:100%; padding:11px; border:1px solid var(--border2); border-radius:11px; background:var(--surface); font-size:12.5px; line-height:1.6; color:var(--text2); outline:none; resize:vertical; min-height:124px; font-family:inherit;"></textarea>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">MODEL & SAMPLING</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip); cursor:pointer;" style-hover="background:var(--raised);">
+          <span style="width:26px; height:26px; border-radius:7px; background:var(--accent-tint); display:flex; align-items:center; justify-content:center; font-size:13px; flex:none; color:var(--accent-text);">◆</span>
+          <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Model</span>
+          <span style="font-size:12px; color:var(--faint);">{{ meModel }}</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c4bfb5" stroke-width="2.2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+        <div style="padding:12px 11px;">
+          <div style="display:flex; align-items:center; margin-bottom:9px;">
+            <span style="flex:1; font-size:13px; color:var(--text2); font-weight:500;">Temperature</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--accent-text); background:var(--accent-tint); padding:1px 8px; border-radius:5px;">{{ meTempLabel }}</span>
+          </div>
+          <input type="range" min="0" max="1" step="0.1" value="{{ meTemp }}" onChange="{{ onMeTemp }}" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
+          <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); margin-top:4px;"><span>precise</span><span>creative</span></div>
+        </div>
+      </div>
+
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--dim); letter-spacing:0.05em; padding:18px 2px 8px;">TOOLS</div>
+      <div style="border:1px solid var(--border); border-radius:11px; background:var(--surface); overflow:hidden;">
+        <sc-for list="{{ meTools }}" as="tool" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:11px; padding:11px; border-bottom:1px solid var(--chip);">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; color:var(--text2); font-weight:500;">{{ tool.label }}</div>
+              <div style="font-size:10.5px; color:var(--faint);">{{ tool.sub }}</div>
+            </div>
+            <button onClick="{{ tool.onClick }}" title="Toggle" style="width:40px; height:23px; border:none; border-radius:999px; background:{{ tool.trackBg }}; position:relative; cursor:pointer; padding:0; transition:background 0.18s; flex:none;">
+              <span style="position:absolute; top:2px; left:{{ tool.knobLeft }}; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left 0.18s;"></span>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+
+      <button onClick="{{ goModes }}" style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; height:38px; margin-top:16px; border:none; border-radius:11px; background:none; color:var(--err-btn); font-size:12.5px; font-weight:500; cursor:pointer; font-family:inherit;" style-hover="background:var(--err-bg);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        Delete mode
+      </button>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:880}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'chat', dark: true, accentHue: 286, prov: null, flags: {}, me: null, showKey: false,
+    thinkingOpen: false, toolOpen: false, quickMenu: false, modelMenu: false, modelPhase: null, focused: false, usageHover: false, copyOk: false,
+    composer: '', model: 'Sonnet 4.5', mode: 'Researcher', style: 'Concise', scope: 'page',
+    ragTopK: 6, editScope: 'preview', historyDays: 365,
+    activeSkillId: null, mdDrag: false, editSkillId: null, newTitle: '', newText: '', newMethod: 'paste',
+    skills: [
+      { id: 'summarize', title: 'Summarize page', color: '#6f68e0', text: '---\nname: summarize\ndescription: Condense the page or selection into key points\n---\n\n# Summarize page\n\nSummarize {{selection|page}} into 3\u20135 tight bullet points.\n\nLead with the single most important takeaway, keep it plain-language, and skip any preamble.' },
+      { id: 'rewrite', title: 'Rewrite clearly', color: '#3f9e5e', text: '---\nname: rewrite\ndescription: Improve clarity and concision, keep my voice\n---\n\n# Rewrite clearly\n\nRewrite {{selection}} to be clearer and more concise.\n\nPreserve the author\u2019s voice and any domain terms. Return the result as a tracked diff against the selection.' },
+    ],
+  };
+
+  componentWillUnmount() { if (this._stopUsageWatch) this._stopUsageWatch(); }
+
+  openUsage = () => {
+    this.setState({ usageHover: true });
+    if (this._usageWatching) return;
+    this._usageWatching = true;
+    const pad = 5;
+    const inRect = (r, x, y) => r && x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+    const inPoly = (x, y, pts) => {
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const xi = pts[i][0], yi = pts[i][1], xj = pts[j][0], yj = pts[j][1];
+        if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+      }
+      return inside;
+    };
+    const onMove = (e) => {
+      const wrap = this._usageWrap;
+      if (!wrap) return;
+      const x = e.clientX, y = e.clientY;
+      const tr = wrap.getBoundingClientRect();
+      const pop = this._usagePop;
+      const pr = pop ? pop.getBoundingClientRect() : null;
+      let safe = inRect(tr, x, y) || inRect(pr, x, y);
+      // Predictive "menu-aim" trapezoid: the travel zone between the trigger's
+      // top edge and the popup's bottom edge (popup sits above the trigger).
+      if (!safe && pr) {
+        safe = inPoly(x, y, [
+          [pr.left - pad, pr.bottom],
+          [pr.right + pad, pr.bottom],
+          [tr.right + pad, tr.top + pad],
+          [tr.left - pad, tr.top + pad],
+        ]);
+      }
+      if (!safe) this._stopUsageWatch();
+    };
+    this._stopUsageWatch = () => {
+      this._usageWatching = false;
+      document.removeEventListener('mousemove', onMove, true);
+      this.setState({ usageHover: false });
+    };
+    document.addEventListener('mousemove', onMove, true);
+  };
+
+  componentWillUnmount() { if (this._stopUsageWatch) this._stopUsageWatch(); if (this._chevRAF) cancelAnimationFrame(this._chevRAF); if (this._modelCloseTimer) clearTimeout(this._modelCloseTimer); }
+
+  // Build the chevron as a proper two-arm V: two equal arms (length L) meeting at a single
+  // centred vertex — no flat base, so the tip is a clean point. `fold` is the arm half-angle
+  // from horizontal: fold>0 → ⌄ (point down), 0 → a straight horizontal line, fold<0 → ⌃
+  // (point up). Re-centred vertically each frame so the vertex never drifts as it folds.
+  _chevPath(fold) {
+    const L = 4.5, cx = 5.5, cy = 5.5;
+    const rad = fold * Math.PI / 180;
+    const dx = L * Math.cos(rad), half = (L * Math.sin(rad)) / 2;
+    const ty = cy - half, vy = cy + half; // arm tips sit above centre, vertex below it
+    const n = (v) => Math.round(v * 1000) / 1000;
+    return 'M ' + n(cx - dx) + ' ' + n(ty) + ' L ' + n(cx) + ' ' + n(vy) + ' L ' + n(cx + dx) + ' ' + n(ty);
+  }
+  // Morph the model-row chevron's fold angle with rAF (updates the path's d directly, so
+  // there is no full React re-render per frame). Reversible mid-flight.
+  _animChev(target) {
+    if (this._chevRAF) cancelAnimationFrame(this._chevRAF);
+    // When the panel isn't visible, rAF is paused — snap to the target (the re-render
+    // bound to _chevFold shows the correct resting shape with no animation).
+    if (document.hidden) { this._chevFold = target; return; }
+    const start = (typeof this._chevFold === 'number') ? this._chevFold : 45, t0 = performance.now(), dur = 320;
+    const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      this._chevFold = start + (target - start) * ease(p);
+      const el = document.querySelector('path[data-chev="model"]'); // re-query: node may be swapped on re-render
+      if (el) el.setAttribute('d', this._chevPath(this._chevFold));
+      if (p < 1) this._chevRAF = requestAnimationFrame(step);
+      else { this._chevFold = target; this._chevRAF = null; }
+    };
+    this._chevRAF = requestAnimationFrame(step);
+  }
+
+  _chevFold = 45; // chevron fold angle in degrees (45 = resting down-chevron, 0 = flat, -45 = up)
+
+  openModelMenu = (e) => {
+    if (this.state.modelMenu) { this.closeModelMenu(); return; }
+    if (this._modelCloseTimer) { clearTimeout(this._modelCloseTimer); this._modelCloseTimer = null; }
+    const r = e.currentTarget.getBoundingClientRect();
+    const opts = this._modelLabels || [];
+    const idx = Math.max(0, opts.indexOf(this.state.model));
+    // Mount collapsed ('start'), then flip to 'open' next frame so the CSS transitions run:
+    // each option slots down from above + fades in, staggered; the panel drops + scales in.
+    this.setState({ modelMenu: true, modelPhase: 'start', modelRect: { left: r.left, bottom: r.bottom, width: r.width }, modelIndex: idx });
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (this.state.modelMenu) this.setState({ modelPhase: 'open' }); }));
+    this._animChev(-45); // fold the chevron up
+    document.addEventListener('keydown', this._onModelKey, true);
+  };
+  closeModelMenu = () => {
+    if (!this.state.modelMenu || this.state.modelPhase === 'out') return;
+    document.removeEventListener('keydown', this._onModelKey, true);
+    // Exit is deliberately different: the whole panel lifts, scales down and fades out as
+    // one unit (no per-item stagger), then unmounts once the transition is done.
+    this.setState({ modelPhase: 'out' });
+    this._animChev(45); // fold the chevron back down
+    if (this._modelCloseTimer) clearTimeout(this._modelCloseTimer);
+    this._modelCloseTimer = setTimeout(() => { this._modelCloseTimer = null; this.setState({ modelMenu: false, modelPhase: null }); }, 200);
+  };
+  _onModelKey = (e) => {
+    const opts = this._modelLabels || [];
+    if (!opts.length) return;
+    const i = this.state.modelIndex || 0;
+    if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ modelIndex: Math.min(i + 1, opts.length - 1) }); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ modelIndex: Math.max(i - 1, 0) }); }
+    else if (e.key === 'Enter') { e.preventDefault(); this.setState({ model: opts[i] }); this.closeModelMenu(); }
+    else if (e.key === 'Escape') { e.preventDefault(); this.closeModelMenu(); }
+  };
+
+  tokens(dark, h) {
+    return dark ? {
+      backdrop:'radial-gradient(circle at 30% 18%, #2a2723, #131210)', panelShadow:'rgba(0,0,0,0.6)', ring:'rgba(255,255,255,0.07)',
+      bg:'#1b1a18', surface:'#242220', raised:'#2c2a26', border:'#34322e', border2:'#3c3934', chip:'#2e2c28', hover:'#34322e',
+      text:'#f3efe8', text2:'#e7e2d9', mid:'#b2aca2', faint:'#8a857b', dim:'#6c685f',
+      accent:'oklch(0.66 0.16 '+h+')', accentHover:'oklch(0.71 0.16 '+h+')', accentTint:'oklch(0.34 0.065 '+h+')', accentTintBd:'oklch(0.44 0.085 '+h+')', accentText:'oklch(0.82 0.10 '+h+')', accentGlow:'oklch(0.66 0.16 '+h+' / 0.45)', focusRing:'0 0 0 3px oklch(0.66 0.16 '+h+' / 0.30)', accentDeep:'oklch(0.54 0.16 '+h+')',
+      ok:'#5cba7c', okTint:'#1d2a20', warmTint:'#33271d', blueTint:'#1e2730',
+      delBg:'#3a2120', del:'#dd8f8f', delMark:'#e59494', addBg:'#1d2d22', add:'#7fc79a', addMark:'#7fc79a',
+      errBg:'#2f1f1a', errBd:'#4c302a', errTitle:'#e7a28d', errText:'#cd998c', errBtn:'#c6604f', errBtnHover:'#d06e5d', errBtnBd:'#4c302a',
+      star:'#e0a33a', sendOff:'#3c3934',
+    } : {
+      backdrop:'radial-gradient(circle at 30% 18%, #ceccc6, #b9b5ad)', panelShadow:'rgba(40,36,30,0.5)', ring:'rgba(40,36,30,0.07)',
+      bg:'#fbfaf8', surface:'#ffffff', raised:'#faf9f6', border:'#ece9e3', border2:'#e6e3dc', chip:'#f3f1ec', hover:'#f0ede7',
+      text:'#211f1c', text2:'#2a2722', mid:'#6b6660', faint:'#9b958b', dim:'#a8a298',
+      accent:'oklch(0.55 0.17 '+h+')', accentHover:'oklch(0.49 0.17 '+h+')', accentTint:'oklch(0.955 0.028 '+h+')', accentTintBd:'oklch(0.89 0.055 '+h+')', accentText:'oklch(0.47 0.15 '+h+')', accentGlow:'oklch(0.55 0.17 '+h+' / 0.4)', focusRing:'0 0 0 3px oklch(0.55 0.17 '+h+' / 0.22)', accentDeep:'oklch(0.44 0.17 '+h+')',
+      ok:'#3f9e5e', okTint:'#eef3ee', warmTint:'#f6f0ee', blueTint:'#eef2f6',
+      delBg:'#fcecec', del:'#a85656', delMark:'#cc6b6b', addBg:'#eaf6ee', add:'#3a7a52', addMark:'#4f9e6a',
+      errBg:'#fcf0ee', errBd:'#f1d9d4', errTitle:'#9c4636', errText:'#a86b5e', errBtn:'#c6604f', errBtnHover:'#b25342', errBtnBd:'#ecd2cc',
+      star:'#e0a33a', sendOff:'#cdcabf',
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const set = (patch) => this.setState(patch);
+    const t = this.tokens(s.dark, s.accentHue);
+    const V = {'--bg':t.bg,'--surface':t.surface,'--raised':t.raised,'--border':t.border,'--border2':t.border2,'--chip':t.chip,'--hover':t.hover,'--text':t.text,'--text2':t.text2,'--mid':t.mid,'--faint':t.faint,'--dim':t.dim,'--accent':t.accent,'--accent-hover':t.accentHover,'--accent-tint':t.accentTint,'--accent-tint-bd':t.accentTintBd,'--accent-text':t.accentText,'--accent-glow':t.accentGlow,'--accent-deep':t.accentDeep,'--ok':t.ok,'--ok-tint':t.okTint,'--warm-tint':t.warmTint,'--blue-tint':t.blueTint,'--del-bg':t.delBg,'--del':t.del,'--del-mark':t.delMark,'--add-bg':t.addBg,'--add':t.add,'--add-mark':t.addMark,'--err-bg':t.errBg,'--err-bd':t.errBd,'--err-title':t.errTitle,'--err-text':t.errText,'--err-btn':t.errBtn,'--err-btn-hover':t.errBtnHover,'--err-btn-bd':t.errBtnBd,'--star':t.star,'--panel-shadow':t.panelShadow,'--ring':t.ring};
+    let rootStyle = 'min-height:100vh; width:100%; display:flex; align-items:center; justify-content:center; padding:32px; box-sizing:border-box; background:' + t.backdrop + ';';
+    for (const k in V) rootStyle += ' ' + k + ':' + V[k] + ';';
+    const rawGroups = [
+      { label: 'TODAY', items: [ { title: 'Q3 risk review', snippet: 'Summarize the open risks\u2026', time: '2m', active: true }, { title: 'Rewrite intro paragraph', snippet: 'Tighten the opening\u2026', time: '1h', active: false } ] },
+      { label: 'YESTERDAY', items: [ { title: 'Competitor scan', snippet: 'Pull pricing for the top 5\u2026', time: '1d', active: false }, { title: 'Meeting notes \u2192 actions', snippet: 'Turn this into a task list\u2026', time: '1d', active: false } ] },
+      { label: 'EARLIER', items: [ { title: 'Email reply drafts', snippet: 'Three tones for the vendor\u2026', time: '4d', active: false } ] },
+    ];
+    const groups = rawGroups.map(g => ({ label: g.label, items: g.items.map(it => ({ title: it.title, snippet: it.snippet, time: it.time, bg: it.active ? 'var(--chip)' : 'transparent', dot: it.active ? 'var(--accent)' : 'transparent' })) }));
+
+    const flagOn = (k, d) => (k in s.flags ? s.flags[k] : d);
+    const toggle = (key, def) => { const on = flagOn(key, def); return { on, trackBg: on ? 'var(--accent)' : 'var(--border2)', knobLeft: on ? '19px' : '2px', onClick: () => set(prev => ({ flags: Object.assign({}, prev.flags, { [key]: !(key in prev.flags ? prev.flags[key] : def) }) })) }; };
+    const ragOn = flagOn('ragMemory', false);
+
+    // ---- Skills ----
+    const skillColors = ['#6f68e0','#3f9e5e','#d9772f','#7c5cdb','#c6604f','#3b82c4'];
+    const slugify = (str) => (String(str).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')) || 'skill';
+    const parseFM = (text) => { const src = String(text || ''); const m = /^---\s*\r?\n([\s\S]*?)\r?\n---\s*\r?\n?([\s\S]*)$/.exec(src); let meta = {}, body = src; if (m) { body = m[2]; m[1].split('\n').forEach(line => { const i = line.indexOf(':'); if (i > 0) { meta[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim(); } }); } const firstBody = (body.split('\n').find(l => l.trim() && !/^#/.test(l.trim())) || '').slice(0, 80); return { name: meta.name || '', description: meta.description || firstBody || '', body }; };
+    const enrich = (k) => { const fm = parseFM(k.text); const name = fm.name || slugify(k.title); return Object.assign({}, k, { name, slash: name, slashLabel: '/' + name, desc: fm.description || 'Custom skill' }); };
+    const rawSkills = s.skills;
+    const skills = rawSkills.map(enrich);
+    const activeSkill = skills.find(k => k.id === s.activeSkillId) || null;
+    const updateSkill = (id, patch) => this.setState(prev => ({ skills: prev.skills.map(x => x.id === id ? Object.assign({}, x, patch) : x) }));
+    const skillsPicker = skills.map(k => Object.assign({}, k, {
+      active: k.id === s.activeSkillId,
+      cardBorder: k.id === s.activeSkillId ? 'var(--accent-tint-bd)' : 'var(--border)',
+      cardBg: k.id === s.activeSkillId ? 'var(--accent-tint)' : 'var(--surface)',
+      run: () => this.setState({ activeSkillId: k.id, screen: 'chat', composer: '' }),
+      edit: () => this.setState({ screen: 'skillEdit', editSkillId: k.id }),
+    }));
+    const skillsManageList = skills.map(k => Object.assign({}, k, {
+      open: () => this.setState({ screen: 'skillEdit', editSkillId: k.id }),
+    }));
+    // Editor (existing skill)
+    const editSkill = skills.find(k => k.id === s.editSkillId) || null;
+    // Slash autosuggest
+    const slashActive = s.composer.charAt(0) === '/';
+    const slashQuery = slashActive ? s.composer.slice(1).toLowerCase().trim() : '';
+    const slashMatches = slashActive ? skills.filter(k => (k.name + ' ' + k.title).toLowerCase().includes(slashQuery)) : [];
+    const slashOpen = slashActive && slashMatches.length > 0;
+    const si = slashMatches.length ? Math.max(0, Math.min(s.slashIndex || 0, slashMatches.length - 1)) : 0;
+    const acceptSlash = (k) => k && this.setState({ activeSkillId: k.id, composer: '', slashIndex: 0 });
+    const slashSkills = slashMatches.map((k, idx) => Object.assign({}, k, { onClick: () => acceptSlash(k), onHover: () => set({ slashIndex: idx }), active: idx === si, bg: idx === si ? 'var(--raised)' : 'transparent' }));
+    const onComposerKey = (e) => {
+      if (!slashOpen) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); set({ slashIndex: Math.min(si + 1, slashMatches.length - 1) }); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); set({ slashIndex: Math.max(si - 1, 0) }); }
+      else if (e.key === 'Tab') { e.preventDefault(); acceptSlash(slashMatches[si]); }
+    };
+    // New-skill page (paste or upload)
+    const onMdOver = (e) => { e.preventDefault(); if (!s.mdDrag) set({ mdDrag: true }); };
+    const onMdLeave = (e) => { e.preventDefault(); set({ mdDrag: false }); };
+    const onMdDrop = (e) => { e.preventDefault(); set({ mdDrag: false }); const dt = e.dataTransfer; const f = dt && dt.files && dt.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { const text = String(r.result || ''); const fm = parseFM(text); const fromName = fm.name ? fm.name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : ''; const base = (f.name || 'skill').replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '); this.setState({ newTitle: s.newTitle || fromName || base, newText: text }); }; r.readAsText(f); };
+    const createSkill = () => { const text = s.newText || ''; const fm = parseFM(text); const fromName = fm.name ? fm.name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : ''; const title = (s.newTitle || '').trim() || fromName || 'New skill'; const id = 's' + Date.now(); this.setState(prev => ({ skills: prev.skills.concat([{ id: id, title: title, color: skillColors[prev.skills.length % skillColors.length], text: text }]), screen: 'skillEdit', editSkillId: id, newTitle: '', newText: '', mdDrag: false })); };
+    const goSkillNew = () => set({ screen: 'skillNew', newTitle: '', newText: '', newMethod: 'paste', mdDrag: false });
+
+    const providersList = [
+      { name: 'Anthropic', detail: '3 models · connected', dot: 'var(--ok)', initial: 'A', tint: 'var(--ok-tint)', connected: true, baseUrl: 'https://api.anthropic.com', keyMask: 'sk-ant-api03-••••••••••••3f9a', keyFull: 'sk-ant-api03-1a2b3c4d5e6f7g8h3f9a' },
+      { name: 'OpenAI', detail: '2 models · connected', dot: 'var(--ok)', initial: 'O', tint: 'var(--ok-tint)', connected: true, baseUrl: 'https://api.openai.com/v1', keyMask: 'sk-proj-••••••••••a01c', keyFull: 'sk-proj-9f8e7d6c5b4aa01c' },
+      { name: 'Ollama (local)', detail: 'Not configured', dot: 'var(--dim)', initial: 'L', tint: 'var(--chip)', connected: false, baseUrl: 'http://localhost:11434', keyMask: '', keyFull: '' },
+    ].map(p => Object.assign({}, p, { onClick: () => set({ screen: 'provider', prov: p, showKey: false }) }));
+    providersList.push({ name: 'GitHub Copilot', detail: 'Device sign-in required', dot: 'var(--dim)', initial: 'GH', tint: 'var(--chip)', connected: false, onClick: () => set({ screen: 'copilot', copyOk: false }) });
+    const provObj = s.prov || providersList[0];
+    const provName = provObj.name;
+    const providerModels = {
+      'Anthropic': [ {id:'sonnet45', name:'Claude Sonnet 4.5', sub:'200K context · default'}, {id:'opus4', name:'Claude Opus 4', sub:'200K context'}, {id:'haiku35', name:'Claude Haiku 3.5', sub:'Fast · economical'} ],
+      'OpenAI': [ {id:'gpt4o', name:'GPT-4o', sub:'128K context · default'}, {id:'gpt4omini', name:'GPT-4o mini', sub:'Fast · economical'} ],
+      'Ollama (local)': [ {id:'llama3', name:'Llama 3 8B', sub:'Local model'}, {id:'mistral', name:'Mistral 7B', sub:'Local model'} ],
+    };
+    const provModels = (providerModels[provName] || []).map(m => { const key = provName + ':' + m.id; const on = flagOn(key, true); return { name: m.name, sub: m.sub, trackBg: on ? 'var(--accent)' : 'var(--border2)', knobLeft: on ? '19px' : '2px', onClick: () => set(prev => ({ flags: Object.assign({}, prev.flags, { [key]: !(key in prev.flags ? prev.flags[key] : true) }) })) }; });
+    const provKeyShown = s.showKey ? provObj.keyFull : provObj.keyMask;
+    const modelMenuData = [
+      { prov: 'Anthropic', dot: 'oklch(0.70 0.13 300)', items: [
+        { label: 'Sonnet 4.5', sub: '200K · balanced' },
+        { label: 'Opus 4', sub: '200K · most capable' },
+        { label: 'Haiku 3.5', sub: 'fast · economical' },
+      ] },
+      { prov: 'OpenAI', dot: 'oklch(0.70 0.13 150)', items: [
+        { label: 'GPT-4o', sub: '128K context' },
+        { label: 'GPT-4o mini', sub: 'fast · economical' },
+      ] },
+    ];
+    const modelOptions = [];
+    this._modelLabels = [];
+    const mPhase = s.modelPhase; // 'start' | 'open' | 'out' | null
+    modelMenuData.forEach((g, gi) => {
+      modelMenuData[gi].items.forEach((m, mi) => {
+        const selected = m.label === s.model;
+        const flatIdx = this._modelLabels.length;
+        this._modelLabels.push(m.label);
+        const active = s.modelMenu && flatIdx === (s.modelIndex || 0);
+        // Enter: slot down from above (-10px → 0) + fade, staggered top-to-bottom with a
+        // soft overshoot. Exit: quick uniform fade — the panel itself handles the collapse.
+        let optOpacity = '0', optTransform = 'translateY(-10px)', optTransition = 'none';
+        if (mPhase === 'open') {
+          const d = 45 + flatIdx * 33;
+          optOpacity = '1'; optTransform = 'translateY(0)';
+          optTransition = 'opacity 0.3s ease ' + d + 'ms, transform 0.44s cubic-bezier(0.22,1.32,0.36,1) ' + d + 'ms';
+        } else if (mPhase === 'out') {
+          optOpacity = '0'; optTransform = 'translateY(0)'; optTransition = 'opacity 0.12s ease';
+        }
+        modelOptions.push({
+          label: m.label, sub: m.sub, dot: g.dot, prov: g.prov,
+          firstInGroup: mi === 0, notFirstGroup: gi > 0 && mi === 0,
+          selected, bg: active ? 'var(--hover)' : (selected ? 'var(--accent-tint)' : 'transparent'),
+          optOpacity, optTransform, optTransition,
+          onClick: () => { this.setState({ model: m.label }); this.closeModelMenu(); },
+          onHover: () => this.setState({ modelIndex: flatIdx }),
+        });
+      });
+    });
+    const toolMeta = [
+      { key:'read', label:'Read document', sub:'Access the current page text' },
+      { key:'apply', label:'Apply edits', sub:'Propose tracked diffs to the note' },
+      { key:'search', label:'Search notes', sub:'Query across linked pages' },
+      { key:'fetch', label:'Fetch URLs', sub:'Read linked external pages' },
+    ];
+    const modesData = [
+      { id:'editor', name:'Editor', icon:'✎', tint:'var(--accent-tint)', iconColor:'var(--accent-text)', desc:'Rewrites and edits inline with tracked diffs', model:'Sonnet 4.5', temp:0.3, prompt:"You are a precise copy editor. Improve clarity and concision while preserving the author's voice. Always return changes as a tracked diff against the current selection.", tools:{read:true, apply:true, search:false, fetch:false} },
+      { id:'researcher', name:'Researcher', icon:'◎', tint:'var(--blue-tint)', iconColor:'var(--text2)', desc:'Searches linked pages and cites its sources', model:'Sonnet 4.5', temp:0.5, prompt:'You are a research assistant. Gather evidence across the linked pages before answering, and cite each claim with its source page.', tools:{read:true, apply:false, search:true, fetch:true} },
+      { id:'quick', name:'Quick', icon:'⚡', tint:'var(--warm-tint)', iconColor:'var(--text2)', desc:'Fast answers, no tools, minimal preamble', model:'Haiku 3.5', temp:0.7, prompt:'Answer quickly and directly. No preamble and no tools. Keep responses under three sentences whenever possible.', tools:{read:false, apply:false, search:false, fetch:false} },
+      { id:'coach', name:'Coach', icon:'◑', tint:'var(--ok-tint)', iconColor:'var(--text2)', desc:'Asks clarifying questions before acting', model:'Sonnet 4.5', temp:0.6, prompt:'Before taking action, ask up to two clarifying questions. Then proceed with a short, explicit plan.', tools:{read:true, apply:false, search:false, fetch:false} },
+    ];
+    const modesList = modesData.map(m => { const n = Object.values(m.tools).filter(Boolean).length; return Object.assign({}, m, { badge: n === 0 ? 'no tools' : (n + (n === 1 ? ' tool' : ' tools')), onClick: () => set({ screen: 'modeEdit', me: JSON.parse(JSON.stringify(m)) }) }); });
+    const me = s.me;
+    const meTools = me ? toolMeta.map(tm => { const on = !!(me.tools && me.tools[tm.key]); return { label: tm.label, sub: tm.sub, trackBg: on ? 'var(--accent)' : 'var(--border2)', knobLeft: on ? '19px' : '2px', onClick: () => set(prev => ({ me: Object.assign({}, prev.me, { tools: Object.assign({}, prev.me.tools, { [tm.key]: !(prev.me.tools && prev.me.tools[tm.key]) }) }) })) }; }) : [];
+    const settingsGroupsData = [
+      { label: 'WORKSPACE', items: [
+        { icon: '◆', tint: 'var(--accent-tint)', name: 'Default model', value: 'Sonnet 4.5', onClick: () => {} },
+        { icon: '◑', tint: 'var(--ok-tint)', name: 'Modes', value: '4 custom', onClick: () => set({ screen: 'modes' }) },
+        { icon: '◈', tint: 'var(--blue-tint)', name: 'Skills', value: rawSkills.length + (rawSkills.length === 1 ? ' installed' : ' installed'), onClick: () => set({ screen: 'skillsManage' }) },
+        { icon: '✎', tint: 'var(--warm-tint)', name: 'Styles', value: '3 custom', onClick: () => {} },
+        { icon: '⌘', tint: 'var(--accent-tint)', name: 'System prompt', value: 'Edited', onClick: () => {} },
+      ] },
+      { label: 'CONTEXT & DATA', items: [
+        { icon: '◎', tint: 'var(--blue-tint)', name: 'Context & retrieval', value: ragOn ? 'RAG memory on' : 'Page + selection', onClick: () => set({ screen: 'context' }) },
+        { icon: '✓', tint: 'var(--ok-tint)', name: 'Edit behavior', value: ({preview:'Preview diffs', auto:'Auto-apply', ask:'Ask each time'})[s.editScope], onClick: () => set({ screen: 'editbeh' }) },
+        { icon: '◴', tint: 'var(--warm-tint)', name: 'Data & privacy', value: flagOn('localOnly', true) ? 'Local only' : 'Cloud sync', onClick: () => set({ screen: 'privacy' }) },
+      ] },
+    ];
+    return {
+      rootStyle,
+      isProvider: s.screen === 'provider', isModes: s.screen === 'modes', isModeEdit: s.screen === 'modeEdit',
+      isCopilot: s.screen === 'copilot', copilotCode: 'CCD6-E4C9', copyOk: s.copyOk, copyNot: !s.copyOk,
+      copyCode: () => { try { navigator.clipboard && navigator.clipboard.writeText('CCD6-E4C9'); } catch (e) {} set({ copyOk: true }); setTimeout(() => set({ copyOk: false }), 1600); },
+      openDevice: () => { try { window.open('https://github.com/login/device', '_blank', 'noopener'); } catch (e) {} },
+      isContext: s.screen === 'context', isEditBeh: s.screen === 'editbeh', isPrivacy: s.screen === 'privacy',
+      // Context & retrieval
+      ragOn, ragToggle: toggle('ragMemory', false),
+      ragCardBorder: ragOn ? 'var(--accent-tint-bd)' : 'var(--border)', ragCardBg: ragOn ? 'var(--accent-tint)' : 'var(--surface)',
+      srcPage: toggle('src_page', true), srcSelection: toggle('src_selection', true), srcTabs: toggle('src_tabs', false), srcLinked: toggle('src_linked', false),
+      ragRerank: toggle('rag_rerank', true), ragAutoindex: toggle('rag_autoindex', true),
+      ragTopK: s.ragTopK, ragTopKLabel: String(s.ragTopK), onRagTopK: (e) => set({ ragTopK: parseInt(e.target.value, 10) }),
+      ctxAutotrim: toggle('ctx_autotrim', true), ctxSummarize: toggle('ctx_summarize', false),
+      // Edit behavior
+      editScope: s.editScope,
+      setEditScope: () => set({ editScope: 'preview' }), setEditScopeAsk: () => set({ editScope: 'ask' }), setEditScopeAuto: () => set({ editScope: 'auto' }),
+      ebPreviewSel: s.editScope === 'preview', ebAutoSel: s.editScope === 'auto', ebAskSel: s.editScope === 'ask',
+      ebPreviewBorder: s.editScope === 'preview' ? 'var(--accent-tint-bd)' : 'var(--border)', ebPreviewBg: s.editScope === 'preview' ? 'var(--accent-tint)' : 'var(--surface)', ebPreviewDot: s.editScope === 'preview' ? 'var(--accent)' : 'var(--border2)',
+      ebAskBorder: s.editScope === 'ask' ? 'var(--accent-tint-bd)' : 'var(--border)', ebAskBg: s.editScope === 'ask' ? 'var(--accent-tint)' : 'var(--surface)', ebAskDot: s.editScope === 'ask' ? 'var(--accent)' : 'var(--border2)',
+      ebAutoBorder: s.editScope === 'auto' ? 'var(--accent-tint-bd)' : 'var(--border)', ebAutoBg: s.editScope === 'auto' ? 'var(--accent-tint)' : 'var(--surface)', ebAutoDot: s.editScope === 'auto' ? 'var(--accent)' : 'var(--border2)',
+      ebTrackChanges: toggle('eb_track', true), ebConfirmMulti: toggle('eb_confirm_multi', true), ebPreserveFormat: toggle('eb_preserve_fmt', true), ebSelectionOnly: toggle('eb_selection_only', false),
+      // Data & privacy
+      localOnly: toggle('localOnly', true), telemetry: toggle('pv_telemetry', false), trainingOptOut: toggle('pv_training', true), redactPii: toggle('pv_redact', false), historySave: toggle('pv_history', true),
+      historyDays: s.historyDays, historyDaysLabel: s.historyDays >= 365 ? 'Never' : (s.historyDays + ' days'), onHistoryDays: (e) => set({ historyDays: parseInt(e.target.value, 10) }), clearHistory: () => {},
+      backSettings: () => set({ screen: 'settings' }),
+      goModes: () => set({ screen: 'modes' }),
+      provTitle: provName, provInitial: provObj.initial, provTint: provObj.tint,
+      provStatusBg: provObj.connected ? 'var(--ok-tint)' : 'var(--warm-tint)',
+      provStatusText: provObj.connected ? 'Connected' : 'Not configured',
+      provStatusColor: provObj.connected ? 'var(--ok)' : 'var(--dim)',
+      provBaseUrl: provObj.baseUrl, provKeyShown, showKey: s.showKey, toggleKey: () => set({ showKey: !s.showKey }),
+      provModels, modesList,
+      modeTitle: me ? me.name : 'Edit mode',
+      meName: me ? me.name : '', meDesc: me ? me.desc : '', mePrompt: me ? me.prompt : '', meModel: me ? me.model : 'Sonnet 4.5',
+      meTemp: me ? me.temp : 0.3, meTempLabel: me ? me.temp.toFixed(1) : '0.3',
+      meIcon: me ? me.icon : '✎', meTint: me ? me.tint : 'var(--accent-tint)', meIconColor: me ? me.iconColor : 'var(--accent-text)',
+      meTools,
+      onMeName: (e) => set({ me: Object.assign({}, me, { name: e.target.value }) }),
+      onMeDesc: (e) => set({ me: Object.assign({}, me, { desc: e.target.value }) }),
+      onMePrompt: (e) => set({ me: Object.assign({}, me, { prompt: e.target.value }) }),
+      onMeTemp: (e) => set({ me: Object.assign({}, me, { temp: parseFloat(e.target.value) }) }),
+      saveMode: () => set({ screen: 'modes' }),
+      sessionTitle: 'Q3 risk review', sessionMeta: 'Sonnet 4.5 \u00b7 12 messages',
+      isChat: s.screen === 'chat', isSessions: s.screen === 'sessions', isSettings: s.screen === 'settings', isSkills: s.screen === 'skills', isSkillsManage: s.screen === 'skillsManage', isSkillEdit: s.screen === 'skillEdit', isSkillNew: s.screen === 'skillNew', isOnboarding: s.screen === 'onboarding',
+      goSessions: () => set({ screen: 'sessions' }), goSettings: () => set({ screen: 'settings' }), openSkills: () => set({ screen: 'skills' }), goSkillsManage: () => set({ screen: 'skillsManage' }), goSkillNew, goChat: () => set({ screen: 'chat' }), newChat: () => set({ screen: 'chat' }), goOnboarding: () => set({ screen: 'onboarding' }),
+      // Skills
+      skillsPicker, skillsManageList, createSkill,
+      // New-skill page
+      newTitle: s.newTitle, newText: s.newText, onNewTitle: (e) => set({ newTitle: e.target.value }), onNewText: (e) => set({ newText: e.target.value }),
+      newMethodPaste: s.newMethod === 'paste', newMethodUpload: s.newMethod === 'upload',
+      setMethodPaste: () => set({ newMethod: 'paste' }), setMethodUpload: () => set({ newMethod: 'upload' }),
+      newPasteBg: s.newMethod === 'paste' ? 'var(--surface)' : 'transparent', newPasteColor: s.newMethod === 'paste' ? 'var(--text)' : 'var(--mid)',
+      newUploadBg: s.newMethod === 'upload' ? 'var(--surface)' : 'transparent', newUploadColor: s.newMethod === 'upload' ? 'var(--text)' : 'var(--mid)',
+      onMdOver, onMdLeave, onMdDrop, mdDropBorder: s.mdDrag ? 'var(--accent)' : 'var(--border2)', mdDropBg: s.mdDrag ? 'var(--accent-tint)' : 'var(--surface)',
+      // Skill editor
+      editTitle: editSkill ? editSkill.title : '', editText: editSkill ? editSkill.text : '', editSlash: editSkill ? editSkill.slashLabel : '', editColor: editSkill ? editSkill.color : 'var(--dim)', editDesc: editSkill ? editSkill.desc : '',
+      onEditTitle: (e) => editSkill && updateSkill(editSkill.id, { title: e.target.value }), onEditText: (e) => editSkill && updateSkill(editSkill.id, { text: e.target.value }),
+      removeEditSkill: () => editSkill && this.setState(prev => ({ skills: prev.skills.filter(x => x.id !== editSkill.id), activeSkillId: prev.activeSkillId === editSkill.id ? null : prev.activeSkillId, screen: 'skillsManage' })),
+      slashOpen, slashSkills,
+      hasActiveSkill: !!activeSkill, noActiveSkill: !activeSkill,
+      activeSkillName: activeSkill ? activeSkill.title : '', activeSkillDesc: activeSkill ? activeSkill.desc : '',
+      activeSkillColor: activeSkill ? activeSkill.color : 'var(--dim)', activeSkillSlash: activeSkill ? activeSkill.slashLabel : '',
+      clearSkill: () => set({ activeSkillId: null }),
+      dark: s.dark, toggleTheme: () => set({ dark: !s.dark }),
+      accentHue: s.accentHue,
+      swatches: [286,252,215,152,75,18].map(hue => ({ hue, name: ({286:'Violet',252:'Blue',215:'Cyan',152:'Green',75:'Amber',18:'Rose'})[hue], fill: 'oklch(0.62 0.18 ' + hue + ')', ringShadow: hue === s.accentHue ? '0 0 0 2px var(--surface), 0 0 0 4px oklch(0.62 0.18 ' + hue + ')' : 'none', onClick: () => set({ accentHue: hue }) })),
+      themeTrackBg: s.dark ? 'var(--accent)' : 'var(--border2)', themeKnobLeft: s.dark ? '19px' : '2px',
+      pinned: [ { title: 'Launch checklist', snippet: 'Draft the go-live runbook\u2026', meta: 'Sonnet \u00b7 8 msg' } ],
+      groups,
+      providers: providersList,
+      settingsGroups: settingsGroupsData,
+      thinkingOpen: s.thinkingOpen, thinkBg: s.thinkingOpen ? 'var(--accent-tint)' : 'var(--raised)', thinkRot: s.thinkingOpen ? '180deg' : '0deg', toggleThinking: () => set({ thinkingOpen: !s.thinkingOpen }),
+      toolOpen: s.toolOpen, toolRot: s.toolOpen ? '180deg' : '0deg', toggleTool: () => set({ toolOpen: !s.toolOpen }),
+      quickMenu: s.quickMenu, quickRot: s.quickMenu ? '180deg' : '0deg', quickBtnBg: s.quickMenu ? 'var(--hover)' : 'var(--bg)', quickMaxHeight: s.quickMenu ? '400px' : '0px', quickPanelOpacity: s.quickMenu ? '1' : '0', toggleQuick: () => set({ quickMenu: !s.quickMenu }),
+      quickRows: [ { label: 'MODEL', value: s.model, dot: 'oklch(0.70 0.13 300)', onClick: (e) => this.openModelMenu(e) }, { label: 'MODE', value: s.mode, dot: 'oklch(0.70 0.13 150)', onClick: () => {} }, { label: 'STYLE', value: s.style, dot: 'oklch(0.70 0.13 65)', onClick: () => {} }, { label: 'PRESET', value: 'Doc researcher', dot: 'oklch(0.70 0.13 240)', onClick: () => {} } ].map((r, i) => {
+        const open = s.quickMenu;
+        // The chevron is ONE morphing two-arm V (see _chevPath). _chevFold is the fold
+        // angle (deg); at 0 it straightens into a single line wider than the folded V
+        // (tips swing out to the icon edges) before folding the opposite way. The model
+        // row's fold is animated by _animChev on open/close; others stay folded.
+        const fold = (i === 0) ? this._chevFold : 45;
+        return Object.assign({}, r, {
+          pathD: this._chevPath(fold),
+          chevTag: (i === 0) ? 'model' : 'static',
+          itemOpacity: open ? '1' : '0',
+          itemTransform: open ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.97)',
+          // stagger in on open; collapse together (reverse-ish) on close
+          itemTransition: 'opacity 0.34s cubic-bezier(0.22,0.61,0.36,1) ' + (open ? (60 + i * 65) : 0) + 'ms, transform 0.42s cubic-bezier(0.22,1.2,0.36,1) ' + (open ? (60 + i * 65) : 0) + 'ms',
+        });
+      }),
+      // scope row is the 5th tile — keep it in the same stagger rhythm
+      scopeRowOpacity: s.quickMenu ? '1' : '0',
+      scopeRowTransform: s.quickMenu ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.97)',
+      scopeRowTransition: 'opacity 0.34s cubic-bezier(0.22,0.61,0.36,1) ' + (s.quickMenu ? 320 : 0) + 'ms, transform 0.42s cubic-bezier(0.22,1.2,0.36,1) ' + (s.quickMenu ? 320 : 0) + 'ms',
+      scope: s.scope, setScopePage: () => set({ scope: 'page' }), setScopeAll: () => set({ scope: 'all' }),
+      modelMenu: s.modelMenu, modelOptions, closeModelMenu: this.closeModelMenu,
+      modelPanelOpacity: s.modelPhase === 'open' ? '1' : '0',
+      modelPanelTransform: s.modelPhase === 'open' ? 'translateY(0) scale(1)' : (s.modelPhase === 'out' ? 'translateY(-5px) scale(0.97)' : 'translateY(-8px) scale(0.975)'),
+      modelPanelTransition: s.modelPhase === 'out' ? 'opacity 0.17s cubic-bezier(0.4,0,1,1), transform 0.2s cubic-bezier(0.4,0,1,1)' : (s.modelPhase === 'open' ? 'opacity 0.2s ease, transform 0.36s cubic-bezier(0.2,0.9,0.3,1)' : 'none'),
+      modelMenuStyle: s.modelRect ? ('position:fixed; left:' + s.modelRect.left + 'px; width:' + Math.max(s.modelRect.width, 190) + 'px; top:' + (s.modelRect.bottom + 6) + 'px;') : 'display:none;',
+      scopePageBg: s.scope === 'page' ? 'var(--accent-tint)' : 'var(--surface)', scopePageBorder: s.scope === 'page' ? 'var(--accent-tint-bd)' : 'var(--border2)', scopePageColor: s.scope === 'page' ? 'var(--accent-text)' : 'var(--mid)',
+      scopeAllBg: s.scope === 'all' ? 'var(--accent-tint)' : 'var(--surface)', scopeAllBorder: s.scope === 'all' ? 'var(--accent-tint-bd)' : 'var(--border2)', scopeAllColor: s.scope === 'all' ? 'var(--accent-text)' : 'var(--mid)',
+      composer: s.composer, onComposer: (e) => set({ composer: e.target.value, slashIndex: 0 }), onComposerKey, onFocus: () => set({ focused: true }), onBlur: () => set({ focused: false }),
+      inputBorder: s.focused ? 'var(--accent-tint-bd)' : 'var(--border2)', inputShadow: s.focused ? t.focusRing : 'none',
+      send: () => set({ composer: '' }), sendBg: s.composer.trim() ? 'var(--accent)' : 'var(--dim)',
+      model: s.model, presetSummary: s.mode + ' \u00b7 ' + s.style, costUsd: '$0.42',
+      usageHover: s.usageHover, onUsageEnter: this.openUsage, usageWrapRef: (el) => { this._usageWrap = el; }, usagePopRef: (el) => { this._usagePop = el; },
+      ctxPctNum: 21, ctxPctWidth: '21%', ctxUsedTokens: '43.2k', ctxMaxTokens: '200K', sessionCost: '$1.86', tokensIO: '38.4k \u00b7 4.8k',
+    };
+  }
+}
+</script>
+</body>
+</html>

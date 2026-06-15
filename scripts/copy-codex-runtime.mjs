@@ -31,7 +31,57 @@ async function copyRuntimeTarget(target) {
   await fs.access(source);
   await fs.mkdir(path.dirname(destination), { recursive: true });
   await fs.cp(source, destination, { recursive: true });
+  await resignDarwinBinaries(target, destination);
   await verifyRuntime(target, destination);
+}
+
+// Apple revoked the Developer ID certificate the upstream @openai/codex macOS
+// binaries are signed with, so Gatekeeper/AMFI kills them on launch with SIGKILL
+// and surfaces a "codex" was not opened because it contains malware" dialog.
+// Ad-hoc re-signing (`codesign --sign -`) replaces the revoked signature with a
+// local ad-hoc one, which arm64 macOS requires and allows to run. This must run
+// before the binary is ever executed — macOS moves a flagged binary to the trash
+// the first time it's launched, so verifyRuntime deliberately never runs it.
+async function resignDarwinBinaries(target, destination) {
+  if (!target.includes("apple-darwin")) return;
+  if (process.platform !== "darwin") {
+    // codesign only exists on macOS; a cross-build can't fix the signature here.
+    console.warn(`Skipping ad-hoc re-sign for ${target}: not on macOS. The bundled macOS Codex binary will be blocked by Gatekeeper until re-signed on a Mac.`);
+    return;
+  }
+  const machOFiles = await collectMachOFiles(destination);
+  for (const file of machOFiles) {
+    await execFile("codesign", ["--force", "--sign", "-", file]);
+  }
+}
+
+async function collectMachOFiles(root) {
+  const found = [];
+  const entries = await fs.readdir(root, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      found.push(...(await collectMachOFiles(full)));
+    } else if (entry.isFile() && (await isMachO(full))) {
+      found.push(full);
+    }
+  }
+  return found;
+}
+
+// Detect Mach-O by leading magic (thin LE/BE or fat) so we only hand real
+// executables/dylibs to codesign, not the plain files that sit alongside them.
+async function isMachO(file) {
+  const handle = await fs.open(file, "r");
+  try {
+    const buffer = Buffer.alloc(4);
+    const { bytesRead } = await handle.read(buffer, 0, 4, 0);
+    if (bytesRead < 4) return false;
+    const magics = new Set([0xfeedface, 0xfeedfacf, 0xcafebabe, 0xcffaedfe, 0xcefaedfe, 0xbebafeca]);
+    return magics.has(buffer.readUInt32BE(0)) || magics.has(buffer.readUInt32LE(0));
+  } finally {
+    await handle.close();
+  }
 }
 
 async function resolvePackageRoot(packageName, packageSpec) {
