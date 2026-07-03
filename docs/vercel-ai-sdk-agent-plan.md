@@ -52,7 +52,7 @@ The first implementation should solve the current non-agentic limitation: the as
 - Run targeted tests as each slice goes green.
 - Run full `npm test`.
 - Run `npm run build`.
-- Copy runtime artifacts into the Example vault plugin folder per `AGENTS.md`.
+- Copy runtime artifacts into the target vault plugin folder per `AGENTS.md`.
 - Run Obsidian CLI checks if available.
 
 ## Teamwork Note

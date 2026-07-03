@@ -21,3 +21,4 @@ tests/e2e/.dist/
 data.json
 *.log
 .DS_Store
+AGENTS.local.md

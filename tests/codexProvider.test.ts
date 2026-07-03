@@ -38,7 +38,7 @@ describe("CodexSdkProvider", () => {
       approvalPolicy: "never",
       sandboxMode: "read-only",
       modelReasoningEffort: "medium"
-    }, runCodex, "E:\\Example Vault\\.obsidian\\plugins\\j-chat", "E:\\Example Vault");
+    }, runCodex, "C:\\Vault\\.obsidian\\plugins\\j-chat", "C:\\Vault");
 
     await provider.sendMessage({
       messages: [{ role: "user", content: "hello" }],
@@ -46,7 +46,7 @@ describe("CodexSdkProvider", () => {
     });
 
     expect(runCodex).toHaveBeenCalledWith(expect.objectContaining({
-      workingDirectory: "E:\\Example Vault"
+      workingDirectory: "C:\\Vault"
     }));
   });
 
@@ -60,7 +60,7 @@ describe("CodexSdkProvider", () => {
       approvalPolicy: "never",
       sandboxMode: "read-only",
       modelReasoningEffort: "medium"
-    }, runCodex, "E:\\Example Vault\\.obsidian\\plugins\\j-chat", "E:\\Example Vault");
+    }, runCodex, "C:\\Vault\\.obsidian\\plugins\\j-chat", "C:\\Vault");
 
     await provider.sendMessage({
       messages: [{ role: "user", content: "hello" }],
@@ -112,9 +112,9 @@ describe("CodexSdkProvider", () => {
 
     expect(resolveBundledCodexPath(
       runtime,
-      "E:\\Example Vault\\.obsidian\\plugins\\j-chat",
+      "C:\\Vault\\.obsidian\\plugins\\j-chat",
       "win32",
       "x64"
-    )).toBe("E:\\Example Vault\\.obsidian\\plugins\\j-chat\\codex-runtime\\x86_64-pc-windows-msvc\\codex\\codex.exe");
+    )).toBe("C:\\Vault\\.obsidian\\plugins\\j-chat\\codex-runtime\\x86_64-pc-windows-msvc\\codex\\codex.exe");
   });
 });
